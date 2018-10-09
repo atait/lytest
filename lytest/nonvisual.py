@@ -2,11 +2,7 @@ from phidl import Device
 from functools import wraps
 from contextlib import contextmanager
 
-try:
-    from lyipc.client import klayout_quickplot
-except ImportError:
-    def klayout_quickplot(*args, **kwargs):
-        pass
+from lytest import kqp
 
 
 @contextmanager
@@ -32,7 +28,7 @@ def save_or_visualize(device_name=None, out_file=None):
         CELL = Device(device_name)
     yield CELL
     if out_file is None:
-        klayout_quickplot(CELL, 'debugging.gds', fresh=True)
+        kqp(CELL, fresh=True)
     else:
         CELL.write_gds(out_file)
 

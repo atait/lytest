@@ -1,9 +1,7 @@
 # lytest
 Unit-testing tools for integrated circuit layout
 
-Uses klayout's standalone python modules
-
-Uses pytest (`pip install pytest`). Run all tests with `pytest tests`.
+Uses klayout's standalone python modules and pytest.
 
 ## A big part of this is workflow
 See test_1_components.py for an example.

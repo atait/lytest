@@ -27,7 +27,7 @@ setup(name='lytest',
       author_email='alexander.tait@nist.gov',
       license='MIT',
       packages=['lytest'],
-      install_requires=['klayout', 'pytest'],
+      install_requires=['phidl', 'pytest'],
       entry_points={},
       cmdclass=my_postinstall,
       )

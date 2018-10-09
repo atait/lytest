@@ -1,14 +1,11 @@
 # import klayout.db as kdb
 import pya as kdb
 
+layers_temp = [kdb.LayerInfo(1, 0), kdb.LayerInfo(2, 0)]
 
 def put_box(cell, layout):
-    l1 = layout.insert_layer(kdb.LayerInfo(1, 0))
+    all_layer_refs = []
+    for layerspec in layers_temp:
+        all_layer_refs.append(layout.insert_layer(layerspec))
     box = kdb.DBox(kdb.DPoint(0, 0), kdb.DPoint(20, 30))
-    cell.shapes(l1).insert(box)
-
-
-# class Box(pya.PCell):
-
-# box = kdb.DBox(kdb.DPoint(0, 0), kdb.DPoint(20, 40))
-# TOP.shapes(l1).insert(box)
+    cell.shapes(all_layer_refs[0]).insert(box)

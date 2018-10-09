@@ -8,9 +8,6 @@ from contextlib import contextmanager
 
 from lytest import kqp
 
-#: this needs to reference somewhere else. currently hard coded to two layers
-layers_temp = [kdb.LayerInfo(1, 0), kdb.LayerInfo(2, 0)]
-
 
 @contextmanager
 def save_or_visualize(device_name=None, out_file=None):
@@ -31,8 +28,6 @@ def save_or_visualize(device_name=None, out_file=None):
     '''
     layout = kdb.Layout()
     layout.dbu = 0.001
-    for layer in layers_temp:
-        layout.insert_layer(layer)
     if device_name is None:
         CELL = layout.create_cell('TOP')
     else:

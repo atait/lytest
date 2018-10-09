@@ -70,48 +70,6 @@ def run_xor(file1, file2, tolerance=1, verbose=False):
         raise GeometryDifference("Differences found between layouts {} and {}".format(file1, file2))
 
 
-# BEGIN: delete these things once the klayout package is stable
-import phidl, gdspy
-from phidl import geometry as pg
-
-def xor_polygons_phidl(A,B):
-    """ Given two devices A and B, performs a layer-by-layer XOR diff between
-    A and B, and returns polygons representing the differences between A and B.
-    """
-    D = phidl.Device()
-    A_polys = A.get_polygons(by_spec = True)
-    B_polys = B.get_polygons(by_spec = True)
-    A_layers = A_polys.keys()
-    B_layers = B_polys.keys()
-    all_layers = set()
-    all_layers.update(A_layers)
-    all_layers.update(B_layers)
-    for layer in all_layers:
-        if (layer in A_layers) and (layer in B_layers):
-            p = gdspy.fast_boolean(operandA = A_polys[layer], operandB = B_polys[layer],
-                                   operation = 'xor', precision=0.001,
-                                   max_points=4000, layer=layer[0], datatype=layer[1])
-        elif (layer in A_layers):
-            p = A_polys[layer]
-        elif (layer in B_layers):
-            p = B_polys[layer]
-        if p is not None:
-            D.add_polygon(p, layer = layer)
-    return D
-
-
-def run_xor_phidl(file1, file2, tolerance=10, verbose=False):
-    TOP1 = pg.import_gds(file1)
-    TOP2 = pg.import_gds(file2)
-    XOR = xor_polygons_phidl(TOP1, TOP2)
-    if len(XOR.elements) > 0:
-        raise GeometryDifference("Differences found between layouts {} and {}".format(file1, file2))
-
-
-# run_xor = run_xor_phidl
-# END stable
-
-
 if __name__ == "__main__":
     ''' For command line argument usage, run ``python kdb_xor.py --help``
 

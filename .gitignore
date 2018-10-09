@@ -15,3 +15,6 @@ build
 # Sublime projects
 *.sublime-project
 *.sublime-workspace
+
+# Accidental gds. This will be overridden for references layouts
+*.gds

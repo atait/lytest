@@ -2,6 +2,7 @@ from lytest.kdb_xor import GeometryDifference, run_xor
 from functools import wraps
 import os
 
+
 try:
     from lyipc.client import load as ipc_load
 except ImportError:
@@ -10,33 +11,54 @@ except ImportError:
 
 
 #: set this to specify reference directory. Default is current working directory
-ref_layouts_dir = None
+_ref_layouts_dir = None
 #: set this to specify test directory. Default is current working directory
-test_layouts_dir = None
+_test_layouts_dir = None
 
 
 def set_layout_dirbase(path='.'):
+    ''' This determines what the folders are called.
+        They are sisters with fixed names.
+    '''
     path = os.path.realpath(path)
-    global ref_layouts_dir, test_layouts_dir
-    ref_layouts_dir = os.path.join(path, 'ref_layouts')
-    test_layouts_dir = os.path.join(path, 'run_layouts')
+    global _ref_layouts_dir, _test_layouts_dir
+    _ref_layouts_dir = os.path.join(path, 'ref_layouts')
+    _test_layouts_dir = os.path.join(path, 'run_layouts')
 
 
 set_layout_dirbase()
+
+
+def get_ref_dir():
+    if _ref_layouts_dir is None:
+        return None
+    if not os.path.exists(_ref_layouts_dir):
+        os.mkdir(_ref_layouts_dir)
+        gitignore_file = os.path.join(_ref_layouts_dir, '.gitignore')
+        with open(gitignore_file, 'w') as fx:
+            fx.write('!*.gds\n')
+    return _ref_layouts_dir
+
+
+def get_test_dir():
+    if _test_layouts_dir is None:
+        return None
+    if not os.path.exists(_test_layouts_dir):
+        os.mkdir(_test_layouts_dir)
+    return _test_layouts_dir
 
 
 def get_reftest_filenames(testname):
     ''' Helps organize the typical testing setup where there are two directories
         with corresponding reference and test versions of the same files
     '''
-    if not os.path.exists(ref_layouts_dir):
-        raise RuntimeError('Reference directory does not exist.\n'
-                           'Make {} and put in a .gitignore for !*.gds'.format(ref_layouts_dir))
-    ref_file = os.path.join(ref_layouts_dir, testname)
-    test_file = os.path.join(test_layouts_dir, testname)
-    if ref_layouts_dir == test_layouts_dir:
+    ref_file = os.path.join(get_ref_dir(), testname)
+    test_file = os.path.join(get_test_dir(), testname)
+    if ref_file == test_file:
+        # This should never happen
+        raise RuntimeError('Package miss. This should never happen again.')
         ref_file += '-ref.gds'
-        test_file +=  '-run.gds'
+        test_file += '-run.gds'
     else:
         ref_file += '.gds'
         test_file += '.gds'
@@ -45,7 +67,7 @@ def get_reftest_filenames(testname):
 
 def store_reference(generator_func):
     basename = generator_func.__name__ + '.gds'
-    generator_func(out_file=os.path.join(ref_layouts_dir, basename))
+    generator_func(out_file=os.path.join(get_ref_dir(), basename))
 
 
 def difftest_it(func):

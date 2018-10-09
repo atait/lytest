@@ -1,5 +1,5 @@
-# import klayout.db as kdb
-import pya as kdb
+import klayout.db as kdb
+# import pya as kdb
 
 layers_temp = [kdb.LayerInfo(1, 0), kdb.LayerInfo(2, 0)]
 

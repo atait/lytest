@@ -1,6 +1,7 @@
 # Bytecode
 __pycache__
 *.py[cod]
+.pytest_cache
 
 # DS stores
 *.DS_Store

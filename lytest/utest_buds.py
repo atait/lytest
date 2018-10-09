@@ -1,4 +1,4 @@
-from . kdb_xor import GeometryDifference, run_xor
+from lytest.kdb_xor import GeometryDifference, run_xor
 from functools import wraps
 import os
 

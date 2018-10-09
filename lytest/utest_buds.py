@@ -84,12 +84,12 @@ def difftest_it(func):
     def wrapper(*args, **kwargs):
         ref_file, test_file = get_reftest_filenames(testname)
         if not os.path.exists(ref_file):
-            print('Warning reference does not exist. Creating it')
+            print('Warning reference does not exist. Creating it and an initial test')
             func(ref_file, *args, **kwargs)
             return
         func(test_file, *args, **kwargs)
         try:
-            run_xor(ref_file, test_file, tolerance=10, verbose=False)
+            run_xor(ref_file, test_file, tolerance=1, verbose=False)
         except GeometryDifference:
             ipc_load(ref_file, mode=1)
             ipc_load(test_file, mode=2)

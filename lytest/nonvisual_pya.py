@@ -1,7 +1,6 @@
 # super proto
 
-import klayout.db as kdb
-# import pya as kdb
+from lygadgets import pya as kdb
 
 from functools import wraps
 from contextlib import contextmanager

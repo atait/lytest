@@ -1,5 +1,4 @@
-import klayout.db as kdb
-# import pya as kdb
+from lygadgets import pya as kdb
 
 layers_temp = [kdb.LayerInfo(1, 0), kdb.LayerInfo(2, 0)]
 

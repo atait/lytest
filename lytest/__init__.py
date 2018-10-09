@@ -1,8 +1,3 @@
-from lytest.kdb_xor import *
-from lytest.utest_buds import *
-from lytest.nonvisual import *
-
-
 # quickplotters so you can debug more easily
 try:
     import lyipc.client as ipc
@@ -16,3 +11,8 @@ try:
 except ImportError:
     def qp(*args, **kwargs):
         raise RuntimeError('phidl does not seem to be installed, so you cannot use qp')
+
+
+from lytest.kdb_xor import *
+from lytest.utest_buds import *
+from lytest.nonvisual import *

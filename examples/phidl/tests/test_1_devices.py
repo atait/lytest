@@ -5,18 +5,9 @@ import phidlib
 import numpy as np
 
 
-# quickplotters so you can debug this file more easily
-try:
-    import lyipc.client as ipc
-    kqp = ipc.generate_display_function(None, 'debugging.gds')
-except ImportError:
-    def kqp(*args, **kwargs):
-        raise RuntimeError('klayout quickplot is not available.\nPlease install lyipc.')
-from phidl import quickplot2 as qp
-
-
 # Differencing
 import lytest
+from lytest import qp, kqp  # not used for testing. Used if you want to debug this file
 from lytest import contained_geometry, difftest_it, store_reference
 test_root = os.path.join(os.path.dirname(phidlib.__file__), 'tests')
 lytest.utest_buds.set_layout_dirbase(test_root)

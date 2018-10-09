@@ -1,6 +1,5 @@
 import os
 
-import klayout.db as kdb
 
 class GeometryDifference(Exception):
     pass
@@ -9,6 +8,8 @@ class GeometryDifference(Exception):
 def run_xor(file1, file2, tolerance=1, verbose=False):
     ''' This is not going to work until the klayout stream format bug is fixed
     '''
+    import klayout.db as kdb
+
     l1 = kdb.Layout()
     l1.read(file1)
 

@@ -15,7 +15,7 @@ lytest.utest_buds.set_layout_dirbase(test_root)
 
 # Begin actual device testing
 @contained_geometry
-def Boxy(TOP, layout):
+def Boxypy(TOP, layout):
     pyalib.put_box(TOP, layout)
 
-def test_Boxy(): difftest_it(Boxy)()
+def test_Boxypy(): difftest_it(Boxypy)()

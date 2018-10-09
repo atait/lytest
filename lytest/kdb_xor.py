@@ -108,7 +108,7 @@ def run_xor_phidl(file1, file2, tolerance=10, verbose=False):
         raise GeometryDifference("Differences found between layouts {} and {}".format(file1, file2))
 
 
-run_xor = run_xor_phidl
+# run_xor = run_xor_phidl
 # END stable
 
 

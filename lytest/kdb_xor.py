@@ -1,5 +1,18 @@
-import klayout.db as kdb
 import os
+
+# Which engine are we going to use for the XOR calculation.
+# Autodetects in order of speed. It doesn't make a big difference.
+using_phidl = using_macros = False
+try:
+    # raise ImportError  # temporary override. nobody gets to use the kdb standalone
+    import klayout.db as kdb
+except ImportError:
+    try:
+        import phidl, gdspy
+        import phidl.geometry as pg
+        using_phidl = True
+    except ImportError:
+        using_macros = True
 
 
 class GeometryDifference(Exception):
@@ -65,6 +78,65 @@ def run_xor(file1, file2, tolerance=10, verbose=False):
 
     if diff:
         raise GeometryDifference("Differences found between layouts {} and {}".format(file1, file2))
+
+
+def run_xor_pya(file1, file2, tolerance=10, verbose=False):
+    import subprocess
+    try:
+        call = ['klayout -b']
+        call.append('-rd a=' + file1)
+        call.append('-rd b=' + file2)
+        call.append('-rd tol=' + str(tolerance))
+        call.append('-r ' + os.path.join(os.path.realpath(os.path.dirname(__file__)), 'run_xor.rb'))
+        subprocess.check_output(' '.join(call).split(' '))
+    except FileNotFoundError as err:
+        err.args = (str(err.args[0]) + '\nYou need to alias klayout. See README for instructions', )
+        raise
+    except subprocess.CalledProcessError as err:
+        print(err)
+        raise GeometryDifference("Differences found between layouts {} and {}".format(file1, file2))
+
+
+if using_macros:
+    run_xor = run_xor_pya
+
+
+def xor_polygons_phidl(A,B):
+    """ Given two devices A and B, performs a layer-by-layer XOR diff between
+    A and B, and returns polygons representing the differences between A and B.
+    """
+    D = phidl.Device()
+    A_polys = A.get_polygons(by_spec = True)
+    B_polys = B.get_polygons(by_spec = True)
+    A_layers = A_polys.keys()
+    B_layers = B_polys.keys()
+    all_layers = set()
+    all_layers.update(A_layers)
+    all_layers.update(B_layers)
+    for layer in all_layers:
+        if (layer in A_layers) and (layer in B_layers):
+            p = gdspy.fast_boolean(operandA = A_polys[layer], operandB = B_polys[layer],
+                                   operation = 'xor', precision=0.001,
+                                   max_points=4000, layer=layer[0], datatype=layer[1])
+        elif (layer in A_layers):
+            p = A_polys[layer]
+        elif (layer in B_layers):
+            p = B_polys[layer]
+        if p is not None:
+            D.add_polygon(p, layer = layer)
+    return D
+
+
+def run_xor_phidl(file1, file2, tolerance=10, verbose=False):
+    TOP1 = pg.import_gds(file1)
+    TOP2 = pg.import_gds(file2)
+    XOR = xor_polygons_phidl(TOP1, TOP2)
+    if len(XOR.elements) > 0:
+        raise GeometryDifference("Differences found between layouts {} and {}".format(file1, file2))
+
+
+if using_phidl:
+    run_xor = run_xor_phidl
 
 
 if __name__ == "__main__":

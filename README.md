@@ -120,3 +120,16 @@ This is now on PyPI, so you have to have it now.
 Gives more visual information. During development, the contained geometry result is sent automatically to the GUI. During testing, failed tests are prepped for XOR in the GUI.
 
 Get it through the klayout salt Package Manager
+
+
+## Todo
+
+- template for CI integration.
+- OASIS
+- what if you could `kdb_xor` across git commits/branches
+- use PCell in the pya examples
+- import pya from lygadgets. See if it detects the installed kdb.
+
+
+#### Authors: Alex Tait, Adam McCaughan, Sonia Buckley, Jeff Chiles, Jeff Shainline, Rich Mirin, Sae Woo Nam
+#### National Institute of Standards and Technology, Boulder, CO, USA

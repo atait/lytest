@@ -1,0 +1,10 @@
+language: python
+python:
+- '3.6'
+install:
+- pip install -U virtualenv pip
+- python --version
+- echo $TRAVIS_BRANCH
+script:
+- DOCKER=1 make test
+# deploy

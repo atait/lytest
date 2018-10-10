@@ -4,7 +4,7 @@ python:
 install:
 - python --version
 - echo $TRAVIS_BRANCH
-- pip install -r requirements
+- pip install -r requirements.txt
 - pip install .
 script:
 - DOCKER=1 pytest -W ignore::UserWarning examples

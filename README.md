@@ -1,7 +1,10 @@
 # lytest
+
 Unit-testing tools for integrated circuit layout
 
 Uses klayout's standalone python modules and pytest.
+
+[![Build Status](https://travis-ci.org/atait/lytest.svg?branch=master)](https://travis-ci.org/atait/lytest)
 
 ## A big part of this is workflow
 See test_1_components.py for an example.

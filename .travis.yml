@@ -2,7 +2,6 @@ language: python
 python:
 - '3.6'
 cache: pip
-# fake commit
 install:
 - python --version
 - echo $TRAVIS_BRANCH

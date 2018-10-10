@@ -1,7 +1,10 @@
 # lytest
+
 Unit-testing tools for integrated circuit layout
 
 Uses klayout's standalone python modules and pytest.
+
+[![Build Status](https://travis-ci.org/atait/lytest.svg?branch=master)](https://travis-ci.org/atait/lytest)
 
 ## A big part of this is workflow
 See test_1_components.py for an example.
@@ -124,12 +127,14 @@ Get it through the klayout salt Package Manager
 
 ## Todo
 
-- command line entry points
-    - done
-- template for CI integration.
 - OASIS
 - what if you could `kdb_xor` across git commits/branches
+    - imagine this. someone makes an intentional change to something you were using. you see the binary change in the git diff. how do you specify a geometry test in a similar way. otherwise you have no idea what is happening
 - use PCell in the pya examples
+- command line entry points
+    - done
+- template for CI integration
+    - done
 - import pya from lygadgets. See if it detects the installed kdb.
     - done
 

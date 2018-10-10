@@ -6,7 +6,7 @@ class GeometryDifference(Exception):
 
 
 def run_xor(file1, file2, tolerance=1, verbose=False):
-    ''' This is not going to work until the klayout stream format bug is fixed
+    ''' Returns nothing. Raises a GeometryDifference if there are differences detected
     '''
     from lygadgets import pya as kdb
 

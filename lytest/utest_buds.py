@@ -10,67 +10,34 @@ except ImportError:
         pass
 
 
-#: set this to specify reference directory. Default is current working directory
-_ref_layouts_dir = None
-#: set this to specify test directory. Default is current working directory
-_test_layouts_dir = None
-
-
-def set_layout_dirbase(path='.'):
-    ''' This determines what the folders are called.
-        They are sisters with fixed names.
-    '''
-    path = os.path.realpath(path)
-    global _ref_layouts_dir, _test_layouts_dir
-    _ref_layouts_dir = os.path.join(path, 'ref_layouts')
-    _test_layouts_dir = os.path.join(path, 'run_layouts')
-
-
-set_layout_dirbase()
-
+#: Set this attribute depending on where you want to do the testing
+test_root = '.'
 
 def get_ref_dir():
-    if _ref_layouts_dir is None:
-        return None
-    if not os.path.exists(_ref_layouts_dir):
-        os.mkdir(_ref_layouts_dir)
-        gitignore_file = os.path.join(_ref_layouts_dir, '.gitignore')
+    ''' This does the path joining of course, and also creates the right setup if not present '''
+    ref_layouts_dir = os.path.realpath(os.path.join(test_root, 'ref_layouts'))
+    if not os.path.exists(ref_layouts_dir):
+        os.mkdir(ref_layouts_dir)
+        gitignore_file = os.path.join(ref_layouts_dir, '.gitignore')
         with open(gitignore_file, 'w') as fx:
-            fx.write('!*.gds\n')
-    return _ref_layouts_dir
+            fx.write('!*.gds\n!*.oas')
+    return ref_layouts_dir
 
 
 def get_test_dir():
-    if _test_layouts_dir is None:
-        return None
-    if not os.path.exists(_test_layouts_dir):
-        os.mkdir(_test_layouts_dir)
-    return _test_layouts_dir
+    ''' This does the path joining of course, and also creates the right setup if not present '''
+    test_layouts_dir = os.path.realpath(os.path.join(test_root, 'run_layouts'))
+    if not os.path.exists(test_layouts_dir):
+        os.mkdir(test_layouts_dir)
+    return test_layouts_dir
 
 
-def get_reftest_filenames(testname):
-    ''' Helps organize the typical testing setup where there are two directories
-        with corresponding reference and test versions of the same files
-    '''
-    ref_file = os.path.join(get_ref_dir(), testname)
-    test_file = os.path.join(get_test_dir(), testname)
-    if ref_file == test_file:
-        # This should never happen
-        raise RuntimeError('Package miss. This should never happen again.')
-        ref_file += '-ref.gds'
-        test_file += '-run.gds'
-    else:
-        ref_file += '.gds'
-        test_file += '.gds'
-    return ref_file, test_file
-
-
-def store_reference(generator_func):
-    basename = generator_func.__name__ + '.gds'
+def store_reference(generator_func, extension='.gds'):
+    basename = generator_func.__name__ + extension
     generator_func(out_file=os.path.join(get_ref_dir(), basename))
 
 
-def difftest_it(func):
+def difftest_it(func, reftest_ext=('.gds','.gds')):
     ''' Decorator. Runs an XOR after the function runs.
         The decorated/wrapped function must take at least one argument that is a filename. It must save to it.
         Other arguments can be passed through the wrapper function.
@@ -80,13 +47,20 @@ def difftest_it(func):
         testname = func.__name__[5:]
     else:
         testname = func.__name__
+
+    if type(reftest_ext) is str:
+        reftest_ext = (reftest_ext, reftest_ext)
+    for ext in reftest_ext:
+        if ext.lower() not in ['.gds', '.oas']:
+            raise ValueError('Unrecognized layout format: {}'.format(ext))
+    ref_file = os.path.join(get_ref_dir(), testname) + reftest_ext[0]
+    test_file = os.path.join(get_test_dir(), testname) + reftest_ext[1]
+
     @wraps(func)
     def wrapper(*args, **kwargs):
-        ref_file, test_file = get_reftest_filenames(testname)
         if not os.path.exists(ref_file):
             print('Warning reference does not exist. Creating it and an initial test')
             func(ref_file, *args, **kwargs)
-            return
         func(test_file, *args, **kwargs)
         try:
             run_xor(ref_file, test_file, tolerance=1, verbose=False)

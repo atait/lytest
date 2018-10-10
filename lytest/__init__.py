@@ -15,6 +15,7 @@ except ImportError:
         print('phidl does not seem to be installed, so you cannot use qp')
 
 
-from lytest.kdb_xor import *
-from lytest.utest_buds import *
-from lytest.nonvisual import *
+from lytest.kdb_xor import GeometryDifference, run_xor
+from lytest.utest_buds import store_reference, difftest_it
+from lytest.nonvisual import contained_geometry
+import lytest.command_line

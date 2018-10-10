@@ -10,42 +10,26 @@ except ImportError:
         pass
 
 
-#: set this to specify reference directory. Default is current working directory
-_ref_layouts_dir = None
-#: set this to specify test directory. Default is current working directory
-_test_layouts_dir = None
-
-
-def set_layout_dirbase(path='.'):
-    ''' This determines what the folders are called.
-        They are sisters with fixed names.
-    '''
-    path = os.path.realpath(path)
-    global _ref_layouts_dir, _test_layouts_dir
-    _ref_layouts_dir = os.path.join(path, 'ref_layouts')
-    _test_layouts_dir = os.path.join(path, 'run_layouts')
-
-
-set_layout_dirbase()
-
+#: Set this attribute depending on where you want to do the testing
+test_root = '.'
 
 def get_ref_dir():
-    if _ref_layouts_dir is None:
-        return None
-    if not os.path.exists(_ref_layouts_dir):
-        os.mkdir(_ref_layouts_dir)
-        gitignore_file = os.path.join(_ref_layouts_dir, '.gitignore')
+    ''' This does the path joining of course, and also creates the right setup if not present '''
+    ref_layouts_dir = os.path.realpath(os.path.join(test_root, 'ref_layouts'))
+    if not os.path.exists(ref_layouts_dir):
+        os.mkdir(ref_layouts_dir)
+        gitignore_file = os.path.join(ref_layouts_dir, '.gitignore')
         with open(gitignore_file, 'w') as fx:
             fx.write('!*.gds\n!*.oas')
     return ref_layouts_dir
 
 
 def get_test_dir():
-    if _test_layouts_dir is None:
-        return None
-    if not os.path.exists(_test_layouts_dir):
-        os.mkdir(_test_layouts_dir)
-    return _test_layouts_dir
+    ''' This does the path joining of course, and also creates the right setup if not present '''
+    test_layouts_dir = os.path.realpath(os.path.join(test_root, 'run_layouts'))
+    if not os.path.exists(test_layouts_dir):
+        os.mkdir(test_layouts_dir)
+    return test_layouts_dir
 
 
 def store_reference(generator_func, extension='.gds'):

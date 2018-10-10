@@ -17,5 +17,6 @@ lytest.utest_buds.set_layout_dirbase(test_root)
 @contained_geometry
 def Boxypy(TOP, layout):
     pyalib.put_box(TOP, layout)
+    1 + 1
 
 def test_Boxypy(): difftest_it(Boxypy)()

@@ -16,6 +16,7 @@ setup(name='lytest',
       license='MIT',
       packages=['lytest'],
       install_requires=['klayout', 'pytest', 'lygadgets'],
-      entry_points={'console_scripts': ['lytest_store=lytest.command_line:cm_store_ref']},
+      entry_points={'console_scripts': ['lytest_store=lytest.command_line:cm_store_ref',
+                                        'lytest_xortest=lytest.command_line:cm_xor_test']},
       cmdclass={},
       )

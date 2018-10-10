@@ -67,7 +67,12 @@ def run_xor(file1, file2, tolerance=1, verbose=False):
                     print("No differences found in {} on layer {}.".format(tc1.name, l1.get_info(ll1)))
 
     if diff:
-        raise GeometryDifference("Differences found between layouts {} and {}".format(file1, file2))
+        fn_abgd = []
+        for fn in [file1, file2]:
+            head, tail = os.path.split(fn)
+            abgd = os.path.join(os.path.basename(head), tail)
+            fn_abgd.append(abgd)
+        raise GeometryDifference("Differences found between layouts {} and {}".format(*fn_abgd))
 
 
 if __name__ == "__main__":

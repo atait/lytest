@@ -18,3 +18,6 @@ build
 
 # Accidental gds. This will be overridden for references layouts
 *.gds
+
+# Virtual environment
+venv

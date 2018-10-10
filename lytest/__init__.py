@@ -1,4 +1,5 @@
-__version__ = '0.0.1'
+__version__ = '0.0.2'
+
 # quickplotters so you can debug more easily
 try:
     import lyipc.client as ipc

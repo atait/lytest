@@ -124,11 +124,14 @@ Get it through the klayout salt Package Manager
 
 ## Todo
 
+- command line entry points
+    - done
 - template for CI integration.
 - OASIS
 - what if you could `kdb_xor` across git commits/branches
 - use PCell in the pya examples
 - import pya from lygadgets. See if it detects the installed kdb.
+    - done
 
 
 #### Authors: Alex Tait, Adam McCaughan, Sonia Buckley, Jeff Chiles, Jeff Shainline, Rich Mirin, Sae Woo Nam

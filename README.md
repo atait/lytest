@@ -1,56 +1,117 @@
-# lytest
-
-Unit-testing tools for integrated circuit layout
-
-Uses klayout's standalone python modules and pytest.
-
 [![Build Status](https://travis-ci.org/atait/lytest.svg?branch=master)](https://travis-ci.org/atait/lytest)
 
-## A big part of this is workflow
-See test_1_components.py for an example.
+# lytest
 
-There are functions that generate layouts of interest.
-- They are NOT pytest functions. They cannot start with 'test_' or end with '_test'.
-- Their first argument MUST be a filename. They must write some kind of layout to this file.
-- They CAN take other arguments after the filename.
-
-There are functions that perform the tests.
-- These simply decorate the generating functions with a difference test
-- They ARE pytest functions that will be run automatically
-
-Why separate into two functions?
-- First one is isolated, regular. Can be used to update references one-by-one.
-- Second one can be run automatically with access to the unit-test goodies offered by pytest (e.g. coverage)
-
-Why not put all diffs into one pytest function?
-- Each pytest function stops on an exception, but different functions do not.
-- Prevents one error in an early device shadow those happening in other devices.
-- Can realistically only cover default arguments
-- Does not document actual usage
+Test automation tools for integrated circuit layout using klayout and pytest.
 
 
-## Recommended workflow for device/test development
-When you write a new function, you call it with various options to make sure it's working. Testing more or less means saving those calls in the right place.
+## Code testing
+We don't know by inspection what code does. Determining its behavior involves running it. Is this behavior what we want? There are three basic questions:
 
-### Dependencies
-pdb (python debugger)
+1. Does the code run
+2. Is its behavior correct
+3. Has its behavior changed
+
+Ideally, we want all of these questions answered precisely for a whole range of tests immediately after any code change. But code changes constantly. This issue is excellently addressed by `pytest`, an automated unit testing framework. In a single command, it scrolls through a bunch of test functions, makes sure they run, and makes some programmer-defined checks on behavior.
+
+
+### Layout code
+Code for layout is different from regular code in that its behavior is the geometry it produces. It is difficult to state as text what the correct behavior is, so layouts must be reviewed by eye. This process takes a lot of time for even one complex layout; it is only as good as the reviewer's eyes and knowledge; and it cannot practically be done without hundreds of commits since the last review (from multiple collaborators), making it very hard to localize the origin of bugs.
+
+
+### What lytest does
+`lytest` addresses the layout behavior testing problem by fully automating a key part of layout review process: change detection. It combines the `pytest` automated testing framework with the `klayout` XOR differencing engine. Using stored GDS references that have been deemed correct, change detection is as good as answering the question of correctness.
+
+A test consists of a fixed block of code that produces a GDSII or OASIS file. An initial run produces a reference layout. After review by a human, this file is then marked as the "correct" behavior for that block of code. When the tests are executed, the block runs again, producing a new (run) GDS. Differences in geometry (i.e. non-empty XORs) will raise an exception to the attention of whoever is conducting the test.
+
+
+## Installation
+```
+pip install lytest
+```
+The first time you do this, it will take about 10 minutes to build klayout. Installation depends on pytest, klayout, and lygadgets -- these are automatically installed as dependencies via pip.
+
+
+## Usage
+There are three main parts: write the test, save the answer, run the test repeatedly.
+
+### Write a test
+A simple code test that is compatible with `pytest` looks like this.
+
+```python
+def test_addition():
+    assert 1 + 1 == 2
+```
+
+There are two magic parts of `lytest` that make XOR testing about as simple: two decorators, `contained_geometry` and `difftest_it`, for two types of function we will put in the test file. Here is the basic template (phidl language version)
+
+```python
+import my_library as lib
+@contained_geometry
+def BasicWaveguides(TOP):
+    TOP.add_reference(lib.waveguide(width=0.5, length=20))
+
+def test_BasicWaveguides(): difftest_it(BasicWaveguides)()
+```
+
+The "contained_geometry" (BasicWaveguides) is *not* a pytest function. It takes an (empty) cell, modifies that cell, and returns nothing. Optional arguments are allowed. They cannot start with "test_" or end with "\_test". There is a bit of a magic with their argument and corresponding debug workflow, discussed below. For now, just go with that way of thinking about it.
+
+The pytest itself is essentially just a renaming of `difftest_it` wrapping your contained geometry function. Difftest it implements compiling the test layout, the XOR test, and error reporting. All of these second functions have the exact same format, which is why they are written as one-liners. If you want to disable a test from running automatically with pytest, just comment out this second function.
+
+Why two functions? The first is a normal function. It can be called, examined, used to save to file. It is useful beyond being a test. The second is run automatically and has a whole bunch of other things happening, such as the XOR testing itself.
+
+#### Making it a better test
+Put in a few permutations of arguments. Check corner cases. Maybe intentionally break it using `pytest.raises`.
+```python
+def BasicWaveguides(TOP):
+    TOP.add_reference(lib.waveguide(width=0.5, length=20))
+    wg2 = lib.waveguide(width=0.5, length=50)
+    TOP.add_reference(wg2.rotate(90))
+    with pytest.raises(ValueError):
+        wg3 = lib.waveguide(width=-0.5, length=50)
+```
+
+### Save the answer
+Reference layouts are stored in the "ref_layouts" directory. The first time you run a new test, it will put its result in ref_layouts, where it will be fixed. If that code changes and you run test again, it will raise a geometry difference error. So if you deem the new behavior to be correct, update the reference. This is done from command line:
+```bash
+lytest_store test_geometries.py BasicWaveguides
+```
+replacing "test_geometries.py" with the filename and "BasicWaveguides" with whatever yours is called.
+
+#### OASIS (optional)
+This model necessitates tracking references layouts. They are large binaries that change often, which is a bad combination for version control schemes. The OASIS format is much more memory efficient. It is supported since v0.0.4 and can be selected in the `difftest_it` call (see klayout examples).
+
+
+### Run the test
+The terminal command `pytest [target]` will run the file target (a .py file). If target is a directory, it crawls through automatically running .py files that start with `test_` or end with `_test`. Within a file, pytest automatically calls every function starting with `test_` or ending with `_test`. If an exception is raised, it prints the stack trace but keeps going on to the next function.
+
+#### Visualizing errors (optional)
+[lyipc](https://github.com/atait/klayout-ipc) stands for klayout inter-process control, but it is essentially a visual debug tool. `lytest` and `lyipc` are designed to work together to give more visual information. During development, the contained geometry result is sent automatically to the GUI. During testing, failed tests are prepped for XOR in the GUI. Get it through the klayout salt Package Manager
+
+### Continuous Integration (optional)
+Continuous integration (CI) is when tests are run in an automated way in connection with a version control system. Every time a push is made to any branch, the branch is pulled into a virtual machine (located at travis-ci.org), and a predefined test suite is run. After a few minutes, github displays whether that branch is passing. lytest has CI and an example of how to set it up can be found in `.travis.yml`. Since klayout standalone takes a long time to build, it is recommended to turn on the caching option for pip.
+
+
+## The lytest/lyipc/ipython test-driven workflow
+I currently use this workflow when developing new device cells (as opposed to system-level cells - a different workflow). It is a graphical layout version of test-driven design. It is enabled by some of the tools in lytest.
+
+When you write a new function, you call it with various options in order to develop it and understand what its doing. Testing more or less means coming up with a mixture of library and calls that you like, then saving those calls in the right place.
+
+### Tools and setup
+[lyipc](https://github.com/atait/klayout-ipc) (klayout inter-process control)
+- like quickplot for the klayout window, hence "kqp"
+- kqp sends intermediate layouts at run time from the debugger to the klayout GUI
+- lyipc is also used to automatically bring up failed XOR tests so that XOR results can be visualized
+
+[pdb](https://docs.python.org/3/library/pdb.html) (python debugger)
 - terminal-based, as lightweight as it gets
 - set breakpoint with `import pdb; pdb.set_trace()`
-- you can call quickplot or kqp (klayout_quickplot) from it
-- documentation [here](https://docs.python.org/3/library/pdb.html)
-- builtin
+- you can call quickplot or kqp (`klayout_quickplot`) from it
+- recommended: [pdb++](https://pypi.org/project/pdbpp/)
 
-pdb++
-- general upgrades to pdb. drops in seamlessly
-- customize it to your liking with `~/.pdbrc.py`
-- documentation [here](https://pypi.org/project/pdbpp/)
-- `pip install pdbpp`
-
-ipython
+ipython (interactive python)
 - an upgraded command line shell
-- close interaction with changing code
-- prevents unnecessary reloading
-- `pip install ipython`
+- close interaction with changing code, autoreloading
 - turn autoreload on by default by putting
 ```python
 print('autoreload is on')
@@ -59,77 +120,14 @@ print('autoreload is on')
 ```
 in `~/.ipython/profile_default/startup/auto_reloader.ipy`
 
-lyipc
-- like quickplot for the klayout window
-- technically quickplot is enough, but it's having trouble with ipython
-- follow instructions on the [github page](https://github.com/atait/klayout-ipc)
-
-
-## Goals of testing
-1. Make sure code is not raising error
-    - Just needs to run
-2. See if code changes affected layout behavior
-    - Needs XOR testing
-
-
-## Writing tests
-#### Minimal template
-```python
-import nc_library as lib
-@contained_geometry
-def N_tron(TOP):
-    TOP << lib.ntron()
-
-def test_N_tron(): difftest_it(N_tron)()
-```
-
-#### Developing a new test
-1. Copy-paste this template into one of the test_*.py files
-2. Replace `lib.ntron` with whatever device producing function you'd like to test
-3. Rename `N_tron` and `test_N_tron`
-
-#### Saving its reference
-This is done automatically the first time that pytest encounters it.
-
-#### Changing its reference
-From command line:
-```bash
-python -c "from test_superconductor import *; store_reference(N_tron)"
-```
-but replace "test_superconductor" with the filename and "N_tron" with whatever yours is called.
-
-#### Making it a better test
-Put in a few permutations of arguments. Check corner cases. Maybe intentionally break it using `pytest.raises`.
-```python
-def N_tron(TOP):
-    TOP << lib.ntron(layer=lys['m2_nw'])
-    TOP << lib.ntron(channel_width=.5, gate_width=.3, layer=lys['m2_nw']).movex(20)
-    with pytest.raises(ValueError):
-        TOP << lib.ntron(channel_width=-50)
-```
-
-## Dependency
-These will be installed automatically when you install lytest.
-
-### pytest
-The terminal command `pytest [target]` will run the file target (a .py file). If target is a directory, it crawls through automatically running .py files that start with `test_` or end with `_test`.
-
-Within a file, pytest automatically calls every function starting with `test_` or ending with `_test`. If an exception is raised, it prints the stack trace but keeps going on to the next function.
-
-### klayout
-This is now on PyPI, so you have to have it now.
-
-### lyipc (optional)
-Gives more visual information. During development, the contained geometry result is sent automatically to the GUI. During testing, failed tests are prepped for XOR in the GUI.
-
-Get it through the klayout salt Package Manager
+### The process
+[To fill out]
 
 
 ## Todo
 
-- OASIS
 - what if you could `kdb_xor` across git commits/branches
-    - imagine this. someone makes an intentional change to something you were using. you see the binary change in the git diff. how do you specify a geometry test in a similar way. otherwise you have no idea what is happening
+    - imagine this: someone makes an intentional change to something you were using. you see the binary change in the git diff. how do you specify a geometry test in a similar way. otherwise you have no idea what is happening
 - use PCell in the pya examples
 - command line entry points
     - done

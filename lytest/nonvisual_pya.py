@@ -26,12 +26,11 @@ def save_or_visualize(device_name=None, out_file=None):
         (Although ipc does write a file to be loaded by klayout, it's name or persistence is not guaranteed.)
     '''
     layout = kdb.Layout()
-    layout.dbu = 0.001
     if device_name is None:
         CELL = layout.create_cell('TOP')
     else:
         CELL = layout.create_cell(device_name)
-    yield (CELL, layout)
+    yield CELL
     if out_file is None:
         kqp(CELL, fresh=True)
     else:
@@ -64,7 +63,6 @@ def contained_geometry(func):
     '''
     @wraps(func)
     def geometry_container(out_file=None):
-        with save_or_visualize(out_file=out_file) as stuff:
-            TOP, layout = stuff
-            func(TOP, layout)
+        with save_or_visualize(out_file=out_file) as TOP:
+            func(TOP)
     return geometry_container

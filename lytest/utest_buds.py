@@ -37,24 +37,17 @@ def store_reference(generator_func, extension='.gds'):
     generator_func(out_file=os.path.join(get_ref_dir(), basename))
 
 
-def difftest_it(func, reftest_ext=('.gds','.gds')):
+def difftest_it(func, file_ext='.gds'):
     ''' Decorator. Runs an XOR after the function runs.
         The decorated/wrapped function must take at least one argument that is a filename. It must save to it.
         Other arguments can be passed through the wrapper function.
         This wrapper does not return. Instead it raises GeometryDifference if there are differences
     '''
-    if func.__name__.startswith('test_'):
-        testname = func.__name__[5:]
-    else:
-        testname = func.__name__
-
-    if type(reftest_ext) is str:
-        reftest_ext = (reftest_ext, reftest_ext)
-    for ext in reftest_ext:
-        if ext.lower() not in ['.gds', '.oas']:
-            raise ValueError('Unrecognized layout format: {}'.format(ext))
-    ref_file = os.path.join(get_ref_dir(), testname) + reftest_ext[0]
-    test_file = os.path.join(get_test_dir(), testname) + reftest_ext[1]
+    testname = func.__name__
+    if file_ext.lower() not in ['.gds', '.oas']:
+        raise ValueError('Unrecognized layout format: {}'.format(file_ext))
+    ref_file = os.path.join(get_ref_dir(), testname) + file_ext
+    test_file = os.path.join(get_test_dir(), testname) + file_ext
 
     @wraps(func)
     def wrapper(*args, **kwargs):

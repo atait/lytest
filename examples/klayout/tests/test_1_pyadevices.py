@@ -14,10 +14,10 @@ from lytest.nonvisual_pya import contained_geometry
 
 # Begin actual device testing
 @contained_geometry
-def Boxypy(TOP, layout):
-    pyalib.put_box(TOP, layout)
+def Boxypy(TOP):
+    pyalib.put_box(TOP)
 
 
 def test_Boxypy():
     lytest.utest_buds.test_root = os.path.join(os.path.dirname(pyalib.__file__), 'tests')
-    difftest_it(Boxypy, reftest_ext='.oas')()
+    difftest_it(Boxypy, file_ext='.oas')()

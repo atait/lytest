@@ -3,11 +3,7 @@ from functools import wraps
 import os
 
 
-try:
-    from lyipc.client import load as ipc_load
-except ImportError:
-    def ipc_load(*args, **kwargs):
-        pass
+from lytest import ipc_load
 
 
 #: Set this attribute depending on where you want to do the testing

@@ -8,11 +8,11 @@ from lytest import qp, kqp  # not used for testing. Used if you want to debug th
 
 # Differencing
 from lytest import difftest_it, store_reference
-from lytest.nonvisual import contained_geometry
+from lytest.containers import contained_phidlDevice
 
 
 # Begin actual device testing
-@contained_geometry
+@contained_phidlDevice
 def Boxy(TOP):
     TOP << phidlib.box()
 

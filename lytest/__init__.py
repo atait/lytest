@@ -7,6 +7,11 @@ try:
 except ImportError:
     def kqp(*args, **kwargs):
         print('klayout quickplot is not available.\nPlease install lyipc.')
+try:
+    from lyipc.client import load as ipc_load
+except ImportError:
+    def ipc_load(*args, **kwargs):
+        pass
 
 try:
     from phidl import quickplot2 as qp
@@ -17,5 +22,5 @@ except ImportError:
 
 from lytest.kdb_xor import GeometryDifference, run_xor
 from lytest.utest_buds import store_reference, difftest_it
-from lytest.nonvisual import contained_geometry
+from lytest.containers import contained_phidlDevice, contained_pyaCell, contained_script
 import lytest.command_line

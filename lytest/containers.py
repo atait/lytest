@@ -14,7 +14,7 @@ def phidl_context(device_name=None, out_file=None):
 
         Example::
 
-            with save_or_visualize(out_file='my_box.gds') as D:
+            with phidl_context(out_file='my_box.gds') as D:
                 r = D << phidl.geometry.rectangle(size=(10, 10), layer=1)
                 r.movex(20)
 
@@ -34,19 +34,7 @@ def phidl_context(device_name=None, out_file=None):
 @contextmanager
 def pya_context(cell_name=None, out_file=None):
     ''' Handles a conditional write to file or send over lyipc connection.
-        The context manager yields a new empty Device.
-        The context block then modifies that device by adding references to it. It does not need to return anything.
-        Back to the context manager, the Device is saved if out_file is not None, or it is sent over ipc
-
-        Example::
-
-            with save_or_visualize(out_file='my_box.gds') as D:
-                r = D << phidl.geometry.rectangle(size=(10, 10), layer=1)
-                r.movex(20)
-
-        will write the device with a rectangle to a file called 'my_box.gds' and do nothing with lyipc.
-        By changing out_file to None, it will send an ipc load command instead of writing to a permanent file,
-        (Although ipc does write a file to be loaded by klayout, it's name or persistence is not guaranteed.)
+        See phidl_context above.
     '''
     from lygadgets import pya
     layout = pya.Layout()
@@ -56,6 +44,7 @@ def pya_context(cell_name=None, out_file=None):
         kqp(TOP, fresh=True)
     else:
         layout.write(out_file)
+
 
 def contained_arbitrary(func, layout_context):
     '''
@@ -79,7 +68,6 @@ def contained_arbitrary(func, layout_context):
 
             boxer()  # displays in klayout over ipc
             boxer('temp.gds')  # saves to file instead
-
     '''
     @wraps(func)
     def geometry_container(out_file=None):
@@ -87,8 +75,10 @@ def contained_arbitrary(func, layout_context):
             func(TOP)
     return geometry_container
 
+
 contained_phidlDevice = lambda func: contained_arbitrary(func, phidl_context)
 contained_pyaCell = lambda func: contained_arbitrary(func, pya_context)
+
 
 def contained_script(func):
     @wraps(func)

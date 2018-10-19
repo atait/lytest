@@ -23,15 +23,12 @@ def phidl_context(device_name=None, out_file=None):
         (Although ipc does write a file to be loaded by klayout, it's name or persistence is not guaranteed.)
     '''
     from phidl import Device
-    if device_name is None:
-        CELL = Device()
-    else:
-        CELL = Device(device_name)
-    yield CELL
+    TOP = Device('TOP')
+    yield TOP
     if out_file is None:
-        kqp(CELL, fresh=True)
+        kqp(TOP, fresh=True)
     else:
-        CELL.write_gds(out_file)
+        TOP.write_gds(out_file)
 
 
 @contextmanager
@@ -53,25 +50,12 @@ def pya_context(cell_name=None, out_file=None):
     '''
     from lygadgets import pya
     layout = pya.Layout()
-    if cell_name is None:
-        CELL = layout.create_cell('TOP')
-    else:
-        CELL = layout.create_cell(cell_name)
-    yield CELL
+    TOP = layout.create_cell('TOP')
+    yield TOP
     if out_file is None:
-        kqp(CELL, fresh=True)
+        kqp(TOP, fresh=True)
     else:
         layout.write(out_file)
-
-# @contextmanager
-# def script_context(out_file=None):
-#     shuttle = {'produced_file': None}
-#     yield shuttle
-#     produced_file = shuttle['produced_file']
-#     if out_file is None:
-#         ipc_load(produced_file)
-#     else:
-#         copyfile(produced_file, out_file)
 
 def contained_arbitrary(func, layout_context):
     '''

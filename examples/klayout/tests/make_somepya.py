@@ -8,6 +8,6 @@ import pya
 layout = pya.Layout()
 TOP = layout.create_cell('TOP')
 
-pyalib.put_box(TOP)
+pyalib.put_box(TOP, w=100)
 
 layout.write('sample_layout.gds')

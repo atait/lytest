@@ -26,5 +26,11 @@ def test_Boxypy():
 import subprocess
 @contained_script
 def Boxxx():
-    subprocess.call(['klayout', '-b', '-r', 'make_somepya.py'])
-    return 'sample_layout.gds'
+    script_file = os.path.join(os.path.dirname(__file__), 'make_somepya.py')
+    subprocess.check_call(['klayout', '-b', '-r', script_file])
+    produced_file = 'sample_layout.gds'
+    return produced_file
+
+def test_Boxxx():
+    lytest.utest_buds.test_root = os.path.join(os.path.dirname(pyalib.__file__), 'tests')
+    difftest_it(Boxxx, file_ext='.gds')()

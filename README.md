@@ -15,14 +15,14 @@ We don't know by inspection what code does. Determining its behavior involves ru
 Ideally, we want all of these questions answered precisely for a whole range of tests immediately after any code change. But code changes constantly. This issue is excellently addressed by `pytest`, an automated unit testing framework. In a single command, it scrolls through a bunch of test functions, makes sure they run, and makes some programmer-defined checks on behavior.
 
 
-### Layout code
+### Code for layout
 Code for layout is different from regular code in that its behavior is the geometry it produces. It is difficult to state as text what the correct behavior is, so layouts must be reviewed by eye. This process takes a lot of time for even one complex layout; it is only as good as the reviewer's eyes and knowledge; and it cannot practically be done without hundreds of commits since the last review (from multiple collaborators), making it very hard to localize the origin of bugs.
 
 
 ### What lytest does
-`lytest` addresses the layout behavior testing problem by fully automating a key part of layout review process: change detection. It combines the `pytest` automated testing framework with the `klayout` XOR differencing engine. Using stored GDS references that have been deemed correct, change detection is as good as answering the question of correctness.
+`lytest` addresses the layout behavior testing problem by fully automating a key part of layout review process: change detection. It combines the `pytest` automated testing framework with the `klayout` XOR differencing engine. If stored GDS reference files are deemed correct, then change detection is as good as answering the question of correctness.
 
-A test consists of a fixed block of code that produces a GDSII or OASIS file. An initial run produces a reference layout. After review by a human, this file is then marked as the "correct" behavior for that block of code. When the tests are executed, the block runs again, producing a new (run) GDS. Differences in geometry (i.e. non-empty XORs) will raise an exception to the attention of whoever is conducting the test.
+A test consists of a fixed block of code that produces a GDSII (or OASIS) file. An initial run produces a reference layout. After review by a human, this file is then marked as the "correct" behavior for that block of code. When the tests are executed, the block runs again, producing a new "run" GDS. Differences in geometry (i.e. non-empty XORs) will raise an exception to the attention of whoever is conducting the test.
 
 
 ## Installation
@@ -43,22 +43,22 @@ def test_addition():
     assert 1 + 1 == 2
 ```
 
-There are two magic parts of `lytest` that make XOR testing about as simple: two decorators, `contained_geometry` and `difftest_it`, for two types of function we will put in the test file. Here is the basic template (phidl language version)
-
+There are two magic parts of `lytest` that make XOR testing about as simple: layout containers like `contained_XXX` and the XOR test decorator: `difftest_it`. Here is a complete test file in which we test the `waveguide` device from `my_library` (phidl language version).
 ```python
+from lytest import contained_phidlDevice, difftest_it
 import my_library as lib
-@contained_geometry
+@contained_phidlDevice
 def BasicWaveguides(TOP):
     TOP.add_reference(lib.waveguide(width=0.5, length=20))
 
 def test_BasicWaveguides(): difftest_it(BasicWaveguides)()
 ```
 
-The "contained_geometry" (BasicWaveguides) is *not* a pytest function. It takes an (empty) cell, modifies that cell, and returns nothing. Optional arguments are allowed. They cannot start with "test_" or end with "\_test". There is a bit of a magic with their argument and corresponding debug workflow, discussed below. For now, just go with that way of thinking about it.
+The "contained" function (BasicWaveguides) is *not* a pytest function. It takes an (empty) cell, modifies that cell, and returns nothing. Optional arguments are allowed. They cannot start with "test_" or end with "\_test". There is a bit of a magic associated with declaring and debugging contained layouts, discussed below. For now, just go with that way of thinking about it.
 
-The pytest itself is essentially just a renaming of `difftest_it` wrapping your contained geometry function. Difftest it implements compiling the test layout, the XOR test, and error reporting. All of these second functions have the exact same format, which is why they are written as one-liners. If you want to disable a test from running automatically with pytest, just comment out this second function.
+The pytest function (test_BasicWaveguides) is essentially just a renaming of `difftest_it` wrapping your contained geometry function. Difftest it implements compiling the test layout, the XOR test, and error reporting. All of these second functions have the exact same format, which is why they are written as one-liners. If you want to disable a test from running automatically with pytest, just comment out this second function.
 
-Why two functions? The first is a normal function. It can be called, examined, used to save to file. It is useful beyond being a test. The second is run automatically and has a whole bunch of other things happening, such as the XOR testing itself.
+Why two functions? The first is a normal-ish function. It can be called, examined, used to save to file. It is useful beyond being a test. The second is run automatically and has a whole bunch of other things happening, such as the XOR testing itself.
 
 #### Making it a better test
 Put in a few permutations of arguments. Check corner cases. Maybe intentionally break it using `pytest.raises`.
@@ -95,7 +95,7 @@ Continuous integration (CI) is when tests are run in an automated way in connect
 ## The lytest/lyipc/ipython test-driven workflow
 I currently use this workflow when developing new device cells (as opposed to system-level cells - a different workflow). It is a graphical layout version of test-driven design. It is enabled by some of the tools in lytest.
 
-When you write a new function, you call it with various options in order to develop it and understand what its doing. Testing more or less means coming up with a mixture of library and calls that you like, then saving those calls in the right place.
+Whenever you write a new function, you call it with various options in order to develop it and understand what its doing. You come up with a mixture of library behavior and usgage calls that you like. If you save those calls in the right place, you have made a *test*!
 
 ### Tools and setup
 [lyipc](https://github.com/atait/klayout-ipc) (klayout inter-process control)
@@ -121,7 +121,62 @@ print('autoreload is on')
 in `~/.ipython/profile_default/startup/auto_reloader.ipy`
 
 ### The process
-[To fill out]
+Let's say you want to design a qubit. After setting out your goals on paper, start by making a container function with some basic behavior
+```python
+# test_qubits.py
+from lytest import contained_phidlDevice, difftest_it
+import my_library as lib
+
+@contained_phidlDevice
+def SomeQubits(TOP):
+    TOP << lib.qubit()
+
+# def test_SomeQubits(): difftest_it(SomeQubits)()
+```
+and the corresponding library function
+```python
+# my_library.py
+...
+def qubit():
+    D = Device('qubit')
+    # geometry goes here
+    return D
+...
+```
+
+Activate the lyIPC server in klayout GUI. Open up an ipython shell (with autoreload on). Add some behavior to the library function. To see what this did,
+```python
+[1] from test_qubits import SomeQubits
+[2] SomeQubits()
+```
+voila. Your contained layout has appeared in your klayout GUI.
+
+Change the library behavior. Call it again
+```python
+[3] SomeQubits()
+```
+voila! The *new* behavior appears. No reloading all of the overhead or dealing with layout boilerplate. This call can be repeated every time you save the library.
+
+As you are developing, there might be some call combinations that are very relevant. Keep those. You might end up with
+```python
+# test_qubits.py
+...
+@contained_phidlDevice
+def SomeQubits(TOP):
+    TOP << lib.qubit()
+    TOP << lib.qubit(detuing=100e6).movey(100)
+    TOP << lib.qubit(local_realistic=True).movex(100)
+...
+```
+
+Finally, when you are satisfied with the library behavior, turn it into a test that is run automatically, telling all your collaborators - hey, don't change anything that ends up breaking the SomeQubits container. To do this, just uncomment the line above that has difftest_it.
+
+## What is this container thing?
+A layout "container" appears different from the outside vs. the inside. From the outside, it is a function. It has one optional argument that is a filename. When called, it makes a layout and saves it to that file. From the outside, containers are not language specific. The caller does not know if phidl, pya, or some other geometry language is being used.
+
+The container can be used in different ways. Sometimes that layout gets saved to a file, otherwise it is sent for quickplotting or used in a XOR test. The critical thing is that the geometry code inside of the container remains identical no matter how we want to use it.
+
+From the inside, the container looks completely different. It appears to receive – not a filename – but python objecs: a Cell (pya) or Device (phidl). So the container is also a wrapper that takes care of the set up and tear down associated with turning geometry commands into a complete layout. Script containers are not pya or phidl specific. They contain arbitrary code that produces a file and must return that filename to be found by the container.
 
 
 ## Todo
@@ -129,12 +184,6 @@ in `~/.ipython/profile_default/startup/auto_reloader.ipy`
 - what if you could `kdb_xor` across git commits/branches
     - imagine this: someone makes an intentional change to something you were using. you see the binary change in the git diff. how do you specify a geometry test in a similar way. otherwise you have no idea what is happening
 - use PCell in the pya examples
-- command line entry points
-    - done
-- template for CI integration
-    - done
-- import pya from lygadgets. See if it detects the installed kdb.
-    - done
 
 
 #### Authors: Alex Tait, Adam McCaughan, Sonia Buckley, Jeff Chiles, Jeff Shainline, Rich Mirin, Sae Woo Nam

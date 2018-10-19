@@ -33,4 +33,9 @@ def Boxxx():
 
 def test_Boxxx():
     lytest.utest_buds.test_root = os.path.join(os.path.dirname(pyalib.__file__), 'tests')
+    # First lets check whether klayout is installed and aliased to command line
+    try:
+        subprocess.check_call(['klayout', '-b'])
+    except:
+        return  # if not, then don't try to run the test
     difftest_it(Boxxx, file_ext='.gds')()

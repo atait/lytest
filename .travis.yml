@@ -10,7 +10,7 @@ matrix:
       os: osx
       osx_image: xcode9.4  # macOS 10.13
       env:
-        - MATRIX_EVAL="shopt -s expand_aliases; alias python='python3'; alias pip='pip3';"
+        - MATRIX_EVAL="brew update; brew install sashkab/python/python36; brew link --force --overwrite python36; shopt -s expand_aliases; alias python='/usr/local/opt/python36/bin/python3.6'; alias pip='/usr/local/opt/python36/bin/pip3.6';"
     - name: "lytest python3 linux"
       os: linux
       dist: trusty # Ubuntu 14.04

@@ -2,18 +2,6 @@ language: python
 dist: trusty
 python:
   - '3.6'
-  - '3.7-dev'
-
-# build environment
-os:
-  - linux
-  - osx
-  - windows
-matrix:
-  include:
-    - os: osx
-      language: generic
-      env: TOXENV=py35
 
 # klayout builds from source so this saves 15 minutes on subsequent jobs
 cache: pip

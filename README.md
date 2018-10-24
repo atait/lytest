@@ -146,8 +146,10 @@ def qubit():
 
 Activate the lyIPC server in klayout GUI. Open up an ipython shell (with autoreload on). Add some behavior to the library function. To see what this did,
 ```python
-[1] from test_qubits import SomeQubits
-[2] SomeQubits()
+[1] %load_ext autoreload
+[2] %autoreload 2
+[3] from test_qubits import SomeQubits
+[4] SomeQubits()
 ```
 voila. Your contained layout has appeared in your klayout GUI.
 

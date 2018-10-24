@@ -2,6 +2,12 @@ language: python
 dist: trusty
 python:
   - '3.6'
+  - '2.7'
+
+# build environment
+os:
+  - linux
+  - osx
 
 # klayout builds from source so this saves 15 minutes on subsequent jobs
 cache: pip

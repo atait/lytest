@@ -1,6 +1,9 @@
 language: python
 python:
+  - '3.5'
   - '3.6'
+  - '3.7'
+  - 'pypy3.5'
 
 # build environment
 os:
@@ -20,7 +23,6 @@ install:
   - python --version
   - echo Branch is $TRAVIS_BRANCH
   - echo OS is $TRAVIS_OS_NAME
-  - pip install -r requirements.txt
   - pip install .
 script:
   - DOCKER=1 pytest examples

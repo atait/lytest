@@ -28,7 +28,7 @@ parser.add_argument('testfile', type=argparse.FileType('r'),
                     help='the file in which the test resides')
 parser.add_argument('testname', type=str,
                     help='name of the test')
-parser.add_argument('-v', '--version', action='version', version=f'%(prog)s v{__version__}')
+parser.add_argument('-v', '--version', action='version', version='%(prog)s v{}'.format(__version__))
 
 
 def cm_store_ref():

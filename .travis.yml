@@ -1,9 +1,6 @@
 # Borrowed from klayoutmattias: https://github.com/lightwave-lab/klayout/blob/pymod/.travis.yml
 language: python
-python:
-  - '3.5'
-  - '3.6'
-  - '3.7-dev'
+python: '3.6'
 os: linux
 
 # klayout builds from source so this saves 15 minutes on subsequent jobs

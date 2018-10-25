@@ -1,32 +1,12 @@
+# Borrowed from klayoutmattias: https://github.com/lightwave-lab/klayout/blob/pymod/.travis.yml
 language: python
-dist: trusty
-python:
-  - '3.6'
-  - '3.7-dev'
-
-# build environment
-os:
-  - linux
-  - osx
-  - windows
-matrix:
-  include:
-    - os: osx
-      language: generic
-      env: TOXENV=py35
+python: '3.6'
+os: linux
 
 # klayout builds from source so this saves 15 minutes on subsequent jobs
 cache: pip
 
-before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew list python &>/dev/null || brew install python; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew list python3 &>/dev/null || brew install python3; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install pyenv-virtualenv; fi
-
 install:
-  - python --version
-  - echo $TRAVIS_BRANCH
   - pip install -r requirements.txt
   - pip install .
 script:

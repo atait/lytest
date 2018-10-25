@@ -16,7 +16,7 @@ def get_ref_dir():
         os.mkdir(ref_layouts_dir)
         gitignore_file = os.path.join(ref_layouts_dir, '.gitignore')
         with open(gitignore_file, 'w') as fx:
-            fx.write('!*.gds\n!*.oas')
+            fx.write('!*.gds\n!*.oas\n')
     return ref_layouts_dir
 
 
@@ -25,6 +25,9 @@ def get_test_dir():
     test_layouts_dir = os.path.realpath(os.path.join(test_root, 'run_layouts'))
     if not os.path.exists(test_layouts_dir):
         os.mkdir(test_layouts_dir)
+        gitignore_file = os.path.join(test_layouts_dir, '.gitignore')
+        with open(gitignore_file, 'w') as fx:
+            fx.write('*.gds\n*.oas\n')
     return test_layouts_dir
 
 

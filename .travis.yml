@@ -1,28 +1,13 @@
 # Borrowed from klayoutmattias: https://github.com/lightwave-lab/klayout/blob/pymod/.travis.yml
 language: python
+python:
+  - '3.5'
+  - '3.6'
+  - '3.7-dev'
+os: linux
 
 # klayout builds from source so this saves 15 minutes on subsequent jobs
 cache: pip
-
-matrix:
-  include:
-    - name: "lytest python3 osx"
-      os: osx
-      osx_image: xcode9.4  # macOS 10.13
-      env:
-        - MATRIX_EVAL="brew update; brew install sashkab/python/python36; brew link --force --overwrite python36; shopt -s expand_aliases; alias python='/usr/local/opt/python36/bin/python3.6'; alias pip='/usr/local/opt/python36/bin/pip3.6';"
-    - name: "lytest python3 linux"
-      os: linux
-      dist: trusty # Ubuntu 14.04
-      sudo: false
-      language: python
-      python: '3.6'
-      env:
-        - MATRIX_EVAL=""
-
-before_install:
-  - eval "${MATRIX_EVAL}"
-  - python -c "import distutils.sysconfig as sysconfig; print(sysconfig.__file__)"
 
 install:
   - pip install -r requirements.txt

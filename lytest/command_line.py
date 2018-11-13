@@ -2,7 +2,8 @@
 '''
 import os
 import argparse
-from lytest import __version__, store_reference
+from lytest import __version__, store_reference, ipc_load
+from lytest.kdb_xor import run_xor, GeometryDifference
 import importlib.util
 
 
@@ -58,4 +59,29 @@ def cm_xor_test():
     difftesting_function = load_attribute_fromfile(args.testfile.name, func_name)
     difftesting_function()
     print('Success')
+
+
+# File based diff
+filebased_parser = argparse.ArgumentParser(description="file-based diff integrated with klayout")
+filebased_parser.add_argument('lyfile1', type=argparse.FileType('r'),
+                    help='First layout file (GDS or OAS)')
+filebased_parser.add_argument('lyfile2', type=argparse.FileType('r'),
+                    help='Second layout file (GDS or OAS)')
+filebased_parser.add_argument('-v', '--version', action='version', version='%(prog)s v{}'.format(__version__))
+
+
+def cm_diff():
+    args = filebased_parser.parse_args()
+    for file in [args.lyfile1, args.lyfile2]:
+        file_ext = os.path.splitext(file.name)[1]
+        if file_ext.lower() not in ['.gds', '.oas']:
+            raise ValueError('Unrecognized layout format: {}'.format(file_ext))
+    ref_file = args.lyfile1.name
+    test_file = args.lyfile2.name
+    try:
+        run_xor(ref_file, test_file, tolerance=1, verbose=False)
+    except GeometryDifference:
+        print('These layouts are different.')
+        ipc_load(ref_file, mode=1)
+        ipc_load(test_file, mode=2)
 

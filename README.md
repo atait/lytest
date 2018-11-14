@@ -56,9 +56,9 @@ def test_BasicWaveguides(): difftest_it(BasicWaveguides)()
 
 The "contained" function (BasicWaveguides) is *not* a pytest function. It takes an (empty) cell, modifies that cell, and returns nothing. Optional arguments are allowed. They cannot start with "test_" or end with "\_test". There is a bit of a magic associated with declaring and debugging contained layouts, discussed below. For now, just go with that way of thinking about it.
 
-The pytest function (test_BasicWaveguides) is essentially just a renaming of `difftest_it` wrapping your contained geometry function. Difftest it implements compiling the test layout, the XOR test, and error reporting. All of these second functions have the exact same format, which is why they are written as one-liners. If you want to disable a test from running automatically with pytest, just comment out this second function.
+The pytest function (`test_BasicWaveguides`) is essentially just a renaming of `difftest_it` wrapping your contained geometry function. Difftest it implements compiling the test layout, the XOR test, and error reporting. All of these second functions have the exact same format, which is why they are written as one-liners. If you want to disable a test from running automatically with pytest, just comment out this second function.
 
-Why two functions? The first is a normal-ish function. It can be called, examined, used to save to file. It is useful beyond being a test. The second is run automatically and has a whole bunch of other things happening, such as the XOR testing itself.
+Why two functions? The first is a normal-ish function. It can be called, examined, used to save to file. It is useful beyond being a test (see below). The second is run automatically and has a whole bunch of other things happening, such as the XOR testing itself.
 
 #### Making it a better test
 Put in a few permutations of arguments. Check corner cases. Maybe intentionally break it using `pytest.raises`.
@@ -74,7 +74,7 @@ def BasicWaveguides(TOP):
 ### Save the answer
 Reference layouts are stored in the "ref_layouts" directory. The first time you run a new test, it will put its result in ref_layouts, where it will be fixed. If that code changes and you run test again, it will raise a geometry difference error. So if you deem the new behavior to be correct, update the reference. This is done from command line:
 ```bash
-lytest_store test_geometries.py BasicWaveguides
+lytest store test_geometries.py BasicWaveguides
 ```
 replacing "test_geometries.py" with the filename and "BasicWaveguides" with whatever yours is called.
 
@@ -84,6 +84,11 @@ This model necessitates tracking references layouts. They are large binaries tha
 
 ### Run the test
 The terminal command `pytest [target]` will run the file target (a .py file). If target is a directory, it crawls through automatically running .py files that start with `test_` or end with `_test`. Within a file, pytest automatically calls every function starting with `test_` or ending with `_test`. If an exception is raised, it prints the stack trace but keeps going on to the next function.
+
+You can also pick out a single test and run it with
+```bash
+lytest run test_geometries.py BasicWaveguides
+```
 
 #### Visualizing errors (optional)
 [lyipc](https://github.com/atait/klayout-ipc) stands for klayout inter-process control, but it is essentially a visual debug tool. `lytest` and `lyipc` are designed to work together to give more visual information. During development, the contained geometry result is sent automatically to the GUI. During testing, failed tests are prepped for XOR in the GUI. Get it through the klayout salt Package Manager
@@ -97,16 +102,18 @@ GDS and OASIS are binary formats, so they cannot be compared meaningfully by typ
 
 ### Setup
 You need to configure your own git system to enable it. This is simply done by
-```
+```bash
 lytest git-config
 ```
 You can also do this project-by-project using the `--local` flag.
 
+And then you can do things like
+```bash
+git diff feature-branch tests/ref_layouts/
+```
+to see all the differences go over to the klayout GUI.
 
-(todo) make the command `lytest git-install` to take care of it all.
-
-
-## The lytest/lyipc/ipython test-driven workflow
+# The lytest/lyipc/ipython test-driven workflow
 I currently use this workflow when developing new device cells (as opposed to system-level cells - a different workflow). It is a graphical layout version of test-driven design. It is enabled by some of the tools in lytest.
 
 Whenever you write a new function, you call it with various options in order to develop it and understand what its doing. You come up with a mixture of library behavior and usgage calls that you like. If you save those calls in the right place, you have made a *test*!
@@ -185,7 +192,7 @@ def SomeQubits(TOP):
 ...
 ```
 
-Finally, when you are satisfied with the library behavior, turn it into a test that is run automatically, telling all your collaborators - hey, don't change anything that ends up breaking the SomeQubits container. To do this, just uncomment the line above that has difftest_it.
+Finally, when you are satisfied with the library behavior, turn it into a test that is run automatically, telling all your collaborators - hey, don't change anything that ends up breaking the `SomeQubits` container. To do this, just uncomment the line above that has difftest_it.
 
 ## What is this container thing?
 A layout "container" appears different from the outside vs. the inside. From the outside, it is a function. It has one optional argument that is a filename. When called, it makes a layout and saves it to that file. From the outside, containers are not language specific. The caller does not know if phidl, pya, or some other geometry language is being used.
@@ -196,9 +203,6 @@ From the inside, the container looks completely different. It appears to receive
 
 
 ## Todo
-
-- what if you could `kdb_xor` across git commits/branches
-    - imagine this: someone makes an intentional change to something you were using. you see the binary change in the git diff. how do you specify a geometry test in a similar way. otherwise you have no idea what is happening
 - use PCell in the pya examples
 
 

@@ -92,6 +92,26 @@ The terminal command `pytest [target]` will run the file target (a .py file). If
 Continuous integration (CI) is when tests are run in an automated way in connection with a version control system. Every time a push is made to any branch, the branch is pulled into a virtual machine (located at travis-ci.org), and a predefined test suite is run. After a few minutes, github displays whether that branch is passing. lytest has CI and an example of how to set it up can be found in `.travis.yml`. Since klayout standalone takes a long time to build, it is recommended to turn on the caching option for pip.
 
 
+## git integration
+GDS and OASIS are binary formats, so they cannot be compared meaningfully by typical text diffs. This is really an issue with version control approaches because they rely on diffing across commits, staging areas, and branches. `lytest` effectively gives a way to diff layouts, so it can help. It only matters if it pops up the two files in klayout, so you need to have `lyipc` server active. This is cool, trust me.
+
+### Setup
+You need to configure your own git system to enable it.
+```
+git config diff.lytest.command "lytest gitdiff"
+```
+Then put these lines either in your `~/.gitattributes` (for global effect) or a project's `.git/info/attributes`.
+```
+*.gds  diff=lytest
+*.GDS  diff=lytest
+*.oas  diff=lytest
+*.OAS  diff=lytest
+```
+
+
+(todo) make the command `lytest git-install` to take care of it all.
+
+
 ## The lytest/lyipc/ipython test-driven workflow
 I currently use this workflow when developing new device cells (as opposed to system-level cells - a different workflow). It is a graphical layout version of test-driven design. It is enabled by some of the tools in lytest.
 

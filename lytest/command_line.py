@@ -23,18 +23,30 @@ def load_attribute_fromfile(filename, attr):
     return getattr(the_module, attr)
 
 
+top_parser = argparse.ArgumentParser(description='lytest main command-line entry point')
+top_parser.add_argument('command', type=str, choices=['store', 'diff', 'test', 'git-config'],
+                    metavar='<command>', help='Type "lytest <command> -h" for help on specific commands')
+top_parser.add_argument('args', nargs=argparse.REMAINDER)
+top_parser.add_argument('-v', '--version', action='version', version='%(prog)s v{}'.format(__version__))
 
-parser = argparse.ArgumentParser(description="lytest entry points for storing references and running difftest_it")
-parser.add_argument('testfile', type=argparse.FileType('r'),
+def cm_main():
+    args = top_parser.parse_args()
+    if args.command == 'store':
+        cm_store_ref(args.args)
+    # elif args.command == 'diff':
+    #     config_main(args.args)
+
+
+store_parser = argparse.ArgumentParser(prog='lytest store', description="lytest entry points for storing references and running difftest_it")
+store_parser.add_argument('testfile', type=argparse.FileType('r'),
                     help='the file in which the test resides')
-parser.add_argument('testname', type=str,
+store_parser.add_argument('testname', type=str,
                     help='name of the test')
-parser.add_argument('-v', '--version', action='version', version='%(prog)s v{}'.format(__version__))
 
 
-def cm_store_ref():
-    args = parser.parse_args()
-    test_function = load_attribute_fromfile(args.testfile.name, args.testname)
+def cm_store_ref(args):
+    store_args = store_parser.parse_args(args)
+    test_function = load_attribute_fromfile(store_args.testfile.name, store_args.testname)
     store_reference(test_function)
     print('Success')
 
@@ -71,8 +83,7 @@ filebased_parser.add_argument('-v', '--version', action='version', version='%(pr
 
 
 def cm_diff():
-    args = git_parser.parse_args()
-    print(args)
+    args = filebased_parser.parse_args()
     for file in [args.lyfile1, args.lyfile2]:
         file_ext = os.path.splitext(file.name)[1]
         if file_ext.lower() not in ['.gds', '.oas']:
@@ -102,6 +113,7 @@ git_parser.add_argument('similarity', nargs='*')
 git_parser.add_argument('-v', '--version', action='version', version='%(prog)s v{}'.format(__version__))
 
 def cm_gitdiff():
+    ''' This no longer has an entry point '''
     args = git_parser.parse_args()
     if len(args.similarity) > 0:
         print('Refusing to process similar files without the same name')

@@ -18,6 +18,7 @@ setup(name='lytest',
       install_requires=['klayout', 'pytest', 'lygadgets'],
       entry_points={'console_scripts': ['lytest_store=lytest.command_line:cm_store_ref',
                                         'lytest_xortest=lytest.command_line:cm_xor_test',
-                                        'lytest_diff=lytest.command_line:cm_diff']},
+                                        'lytest_diff=lytest.command_line:cm_diff',
+                                        'lytest_gitdiff=lytest.command_line:cm_gitdiff']},
       cmdclass={},
       )

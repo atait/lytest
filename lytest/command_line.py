@@ -98,12 +98,15 @@ git_parser.add_argument('lyfile2', type=argparse.FileType('r'),
                     help='Second layout file (GDS or OAS)')
 git_parser.add_argument('hash2')
 git_parser.add_argument('mode2')
+git_parser.add_argument('similarity', nargs='*')
 git_parser.add_argument('-v', '--version', action='version', version='%(prog)s v{}'.format(__version__))
-
 
 def cm_gitdiff():
     args = git_parser.parse_args()
-
+    if len(args.similarity) > 0:
+        print('Refusing to process similar files without the same name')
+        print('\n'.join(args.similarity[1:]))
+        return
     for file in [args.lyfile1, args.lyfile2]:
         if args.mode2 is None or file.name == '/dev/null':  # what is this on windows?
             print('File {} does not exist on both commits'.format([args.lyfile1.name, args.lyfile2.name]))

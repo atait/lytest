@@ -169,14 +169,14 @@ gitconfig_parser.add_argument('--local', action='store_true',
 def cm_gitconfig(args):
     gitconfig_args = gitconfig_parser.parse_args(args)
     config_call = ['git', 'config']
-    if not args.local:
+    if not gitconfig_args.local:
         config_call.append('--global')
-    diff_config_call = config_call + ['diff.lytest.command', '"lytest git-diff"']
+    diff_config_call = config_call + ['diff.lytest.command', 'lytest git-diff']
     subprocess.check_call(diff_config_call)
     binary_config_call = config_call + ['diff.lytest.binary', 'true']
     subprocess.check_call(binary_config_call)
 
-    if not args.local:
+    if not gitconfig_args.local:
         attr_file = os.path.expanduser('~/.gitattributes')
     else:
         attr_file = os.path.join('.git', 'info', 'attributes')

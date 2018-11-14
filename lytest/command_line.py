@@ -102,25 +102,23 @@ git_parser.add_argument('-v', '--version', action='version', version='%(prog)s v
 
 
 def cm_gitdiff():
-    try:
-        args = git_parser.parse_args()
+    args = git_parser.parse_args()
 
-        for file in [args.lyfile1, args.lyfile2]:
-            if file.name == '/dev/null':  # what is this on windows?
-                print('File {} does not exist on both commits'.format([args.lyfile1, args.lyfile2]))
-                return
-            file_ext = os.path.splitext(file.name)[1]
-            if file_ext.lower() not in ['.gds', '.oas']:
-                raise ValueError('Unrecognized layout format: {}'.format(file.name))
-        ref_file = args.lyfile1.name
-        test_file = args.lyfile2.name
-        try:
-            run_xor(ref_file, test_file, tolerance=1, verbose=False)
-        except GeometryDifference:
-            print('These layouts are different.')
-            ipc_load(ref_file, mode=1)
-            ipc_load(test_file, mode=2)
-    except Exception as err:
-        print(err, '\n')
-        print(args, '\n')
+    for file in [args.lyfile1, args.lyfile2]:
+        if args.mode2 is None or file.name == '/dev/null':  # what is this on windows?
+            print('File {} does not exist on both commits'.format([args.lyfile1.name, args.lyfile2.name]))
+            return
+        file_ext = os.path.splitext(file.name)[1]
+        if file_ext.lower() not in ['.gds', '.oas']:
+            raise ValueError('Unrecognized layout format: {}'.format(file.name))
+    ref_file = args.lyfile1.name
+    test_file = args.lyfile2.name
+    try:
+        run_xor(ref_file, test_file, tolerance=1, verbose=False)
+    except GeometryDifference:
+        print('Layouts differ:')
+        print('  ', test_file)
+        print('  ', ref_file)
+        ipc_load(ref_file, mode=1)
+        ipc_load(test_file, mode=2)
 

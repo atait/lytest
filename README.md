@@ -98,7 +98,7 @@ GDS and OASIS are binary formats, so they cannot be compared meaningfully by typ
 ### Setup
 You need to configure your own git system to enable it.
 ```
-git config diff.lytest.command "lytest gitdiff"
+git config diff.lytest.command "lytest git-diff"
 ```
 Then put these lines either in your `~/.gitattributes` (for global effect) or a project's `.git/info/attributes`.
 ```

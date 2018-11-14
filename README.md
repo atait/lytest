@@ -96,17 +96,11 @@ Continuous integration (CI) is when tests are run in an automated way in connect
 GDS and OASIS are binary formats, so they cannot be compared meaningfully by typical text diffs. This is really an issue with version control approaches because they rely on diffing across commits, staging areas, and branches. `lytest` effectively gives a way to diff layouts, so it can help. It only matters if it pops up the two files in klayout, so you need to have `lyipc` server active. This is cool, trust me.
 
 ### Setup
-You need to configure your own git system to enable it.
+You need to configure your own git system to enable it. This is simply done by
 ```
-git config diff.lytest.command "lytest git-diff"
+lytest git-config
 ```
-Then put these lines either in your `~/.gitattributes` (for global effect) or a project's `.git/info/attributes`.
-```
-*.gds  diff=lytest
-*.GDS  diff=lytest
-*.oas  diff=lytest
-*.OAS  diff=lytest
-```
+You can also do this project-by-project using the `--local` flag.
 
 
 (todo) make the command `lytest git-install` to take care of it all.

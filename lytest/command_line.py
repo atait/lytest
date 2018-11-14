@@ -6,7 +6,7 @@ from lytest import __version__, store_reference, ipc_load
 from lytest.kdb_xor import run_xor, GeometryDifference
 import importlib.util
 import subprocess
-
+import textwrap
 
 _loaded_modules = dict()
 def load_attribute_fromfile(filename, attr):
@@ -25,9 +25,19 @@ def load_attribute_fromfile(filename, attr):
     return getattr(the_module, attr)
 
 
-top_parser = argparse.ArgumentParser(description='lytest main command-line entry point')
+top_parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description=textwrap.dedent('''\
+        Main entry point. Available commands are
+          store: store a new reference layout
+          diff: XOR two files
+          run: run one XOR test
+          git-config: one time setup for git system
+
+        Type "lytest <command> -h" for help on specific commands
+        '''))
 top_parser.add_argument('command', type=str, choices=['store', 'diff', 'run', 'git-config', 'git-diff'],
-                    metavar='<command>', help='Type "lytest <command> -h" for help on specific commands')
+                    metavar='<command>')
 top_parser.add_argument('args', nargs=argparse.REMAINDER)
 top_parser.add_argument('-v', '--version', action='version', version='%(prog)s v{}'.format(__version__))
 
@@ -161,13 +171,16 @@ def cm_gitconfig(args):
     config_call = ['git', 'config']
     if not args.local:
         config_call.append('--global')
-    config_call += ['diff.lytest.command', '"lytest git-diff"']
+    diff_config_call = config_call + ['diff.lytest.command', '"lytest git-diff"']
+    subprocess.check_call(diff_config_call)
+    binary_config_call = config_call + ['diff.lytest.binary', 'true']
+    subprocess.check_call(binary_config_call)
 
     if not args.local:
         attr_file = os.path.expanduser('~/.gitattributes')
     else:
         attr_file = os.path.join('.git', 'info', 'attributes')
-    with open(attr_file, 'w+') as fx:
+    with open(attr_file, 'a+') as fx:
         for filetype in ('gds', 'GDS', 'oas', 'OAS'):
-            fx.write('*.' + filetype + '\n')
+            fx.write('*.{}  diff=lytest\n'.format(filetype))
 

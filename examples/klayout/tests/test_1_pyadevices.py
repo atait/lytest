@@ -10,7 +10,7 @@ from lytest import qp, kqp  # not used for testing. Used if you want to debug th
 from lytest import difftest_it, store_reference
 from lytest.containers import contained_pyaCell, contained_script
 
-
+from test_0_pyacode import working_pya
 
 # Begin actual device testing
 @contained_pyaCell
@@ -18,6 +18,7 @@ def Boxypy(TOP):
     pyalib.put_box(TOP)
 
 
+@working_pya
 def test_Boxypy():
     lytest.utest_buds.test_root = os.path.join(os.path.dirname(pyalib.__file__), 'tests')
     difftest_it(Boxypy, file_ext='.oas')()
@@ -31,6 +32,7 @@ def Boxxx():
     produced_file = 'sample_layout.gds'
     return produced_file
 
+@working_pya
 def test_Boxxx():
     lytest.utest_buds.test_root = os.path.join(os.path.dirname(pyalib.__file__), 'tests')
     # First lets check whether klayout is installed and aliased to command line

@@ -1,5 +1,9 @@
 import os
+import phidl
+import gdspy
+import phidl.geometry as pg
 
+from lygadgets import pya as pya, message
 
 class GeometryDifference(Exception):
     pass
@@ -8,12 +12,11 @@ class GeometryDifference(Exception):
 def run_xor(file1, file2, tolerance=1, verbose=False):
     ''' Returns nothing. Raises a GeometryDifference if there are differences detected
     '''
-    from lygadgets import pya as kdb
 
-    l1 = kdb.Layout()
+    l1 = pya.Layout()
     l1.read(file1)
 
-    l2 = kdb.Layout()
+    l2 = pya.Layout()
     l2.read(file2)
 
     # Check that same set of layers are present
@@ -50,8 +53,8 @@ def run_xor(file1, file2, tolerance=1, verbose=False):
     diff = False
     for tc1, tc2 in topcell_pairs:
         for ll1, ll2 in layer_pairs:
-            r1 = kdb.Region(tc1.begin_shapes_rec(ll1))
-            r2 = kdb.Region(tc2.begin_shapes_rec(ll2))
+            r1 = pya.Region(tc1.begin_shapes_rec(ll1))
+            r2 = pya.Region(tc2.begin_shapes_rec(ll2))
 
             rxor = r1 ^ r2
 
@@ -73,6 +76,46 @@ def run_xor(file1, file2, tolerance=1, verbose=False):
             abgd = os.path.join(os.path.basename(head), tail)
             fn_abgd.append(abgd)
         raise GeometryDifference("Differences found between layouts {} and {}".format(*fn_abgd))
+
+
+def xor_polygons_phidl(A,B):
+    """ Given two devices A and B, performs a layer-by-layer XOR diff between
+    A and B, and returns polygons representing the differences between A and B.
+    """
+    D = phidl.Device()
+    A_polys = A.get_polygons(by_spec = True)
+    B_polys = B.get_polygons(by_spec = True)
+    A_layers = A_polys.keys()
+    B_layers = B_polys.keys()
+    all_layers = set()
+    all_layers.update(A_layers)
+    all_layers.update(B_layers)
+    for layer in all_layers:
+        if (layer in A_layers) and (layer in B_layers):
+            p = gdspy.fast_boolean(operandA = A_polys[layer], operandB = B_polys[layer],
+                                   operation = 'xor', precision=0.001,
+                                   max_points=4000, layer=layer[0], datatype=layer[1])
+        elif (layer in A_layers):
+            p = A_polys[layer]
+        elif (layer in B_layers):
+            p = B_polys[layer]
+        if p is not None:
+            D.add_polygon(p, layer = layer)
+    return D
+
+
+def run_xor_phidl(file1, file2, tolerance=1, verbose=False):
+    TOP1 = pg.import_gds(file1)
+    TOP2 = pg.import_gds(file2)
+    XOR = xor_polygons_phidl(TOP1, TOP2)
+    if len(XOR.elements) > 0:
+        raise GeometryDifference("Differences found between layouts {} and {}".format(file1, file2))
+
+# if you have failed to import klayout.db or pya, it's going to go slower but it can be done with phidl
+if pya is None:
+    message('Detected no klayout standalone. We will use phidl, which is slower')
+    message('You should "pip install klayout"')
+    run_xor = run_xor_phidl
 
 
 if __name__ == "__main__":

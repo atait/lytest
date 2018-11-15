@@ -3,7 +3,7 @@ import phidl
 import gdspy
 import phidl.geometry as pg
 
-from lygadgets import pya as pya
+from lygadgets import pya as pya, message
 
 class GeometryDifference(Exception):
     pass
@@ -113,8 +113,8 @@ def run_xor_phidl(file1, file2, tolerance=1, verbose=False):
 
 # if you have failed to import klayout.db or pya, it's going to go slower but it can be done with phidl
 if pya is None:
-    lygadgets.message('Detected no klayout standalone. We will use phidl, which is slower')
-    lygadgets.message('You should "pip install klayout"')
+    message('Detected no klayout standalone. We will use phidl, which is slower')
+    message('You should "pip install klayout"')
     run_xor = run_xor_phidl
 
 

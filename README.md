@@ -204,6 +204,8 @@ From the inside, the container looks completely different. It appears to receive
 
 ## Todo
 - use PCell in the pya examples
+- warn when that extra parentheses is not there after difftest_it
+- tiles for more performance
 
 
 #### Authors: Alex Tait, Adam McCaughan, Sonia Buckley, Jeff Chiles, Jeff Shainline, Rich Mirin, Sae Woo Nam

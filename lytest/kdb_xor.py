@@ -3,6 +3,8 @@ import phidl
 import gdspy
 import phidl.geometry as pg
 
+from lygadgets import pya as pya
+
 class GeometryDifference(Exception):
     pass
 
@@ -10,12 +12,11 @@ class GeometryDifference(Exception):
 def run_xor(file1, file2, tolerance=1, verbose=False):
     ''' Returns nothing. Raises a GeometryDifference if there are differences detected
     '''
-    from lygadgets import pya as kdb
 
-    l1 = kdb.Layout()
+    l1 = pya.Layout()
     l1.read(file1)
 
-    l2 = kdb.Layout()
+    l2 = pya.Layout()
     l2.read(file2)
 
     # Check that same set of layers are present
@@ -52,8 +53,8 @@ def run_xor(file1, file2, tolerance=1, verbose=False):
     diff = False
     for tc1, tc2 in topcell_pairs:
         for ll1, ll2 in layer_pairs:
-            r1 = kdb.Region(tc1.begin_shapes_rec(ll1))
-            r2 = kdb.Region(tc2.begin_shapes_rec(ll2))
+            r1 = pya.Region(tc1.begin_shapes_rec(ll1))
+            r2 = pya.Region(tc2.begin_shapes_rec(ll2))
 
             rxor = r1 ^ r2
 
@@ -110,7 +111,9 @@ def run_xor_phidl(file1, file2, tolerance=1, verbose=False):
     if len(XOR.elements) > 0:
         raise GeometryDifference("Differences found between layouts {} and {}".format(file1, file2))
 
-run_xor = run_xor_phidl
+# if you have failed to import klayout.db or pya, it's going to go slower but it can be done with phidl
+if pya is None:
+    run_xor = run_xor_phidl
 
 
 if __name__ == "__main__":

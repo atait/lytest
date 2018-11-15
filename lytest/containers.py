@@ -1,6 +1,6 @@
 from functools import wraps
 from contextlib import contextmanager
-from shutil import copyfile
+import os
 
 from lytest import kqp, ipc_load
 
@@ -87,5 +87,5 @@ def contained_script(func):
         if out_file is None:
             ipc_load(produced_file)
         else:
-            copyfile(produced_file, out_file)
+            os.rename(produced_file, out_file)
     return script_container

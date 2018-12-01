@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/atait/lytest.svg?branch=master)](https://travis-ci.org/atait/lytest)
 
+The DOI should go here
+
 # lytest
 
 Test automation tools for integrated circuit layout using klayout and pytest.

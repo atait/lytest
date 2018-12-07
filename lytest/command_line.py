@@ -28,7 +28,7 @@ def load_attribute_fromfile(filename, attr):
 top_parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=textwrap.dedent('''\
-        Main entry point. Available commands are
+        Available commands are
           store: store a new reference layout
           diff: XOR two files
           run: run one XOR test
@@ -104,6 +104,8 @@ filebased_parser.add_argument('lyfile1', type=argparse.FileType('r'),
                     help='First layout file (GDS or OAS)')
 filebased_parser.add_argument('lyfile2', type=argparse.FileType('r'),
                     help='Second layout file (GDS or OAS)')
+filebased_parser.add_argument('tolerance', type=int, nargs='?', default=1,
+                    help='Tolerance in database units (usually nanometers)')
 
 
 def cm_diff(args):
@@ -115,14 +117,15 @@ def cm_diff(args):
     ref_file = diff_args.lyfile1.name
     test_file = diff_args.lyfile2.name
     try:
-        run_xor(ref_file, test_file, tolerance=1, verbose=False)
+        run_xor(ref_file, test_file, tolerance=diff_args.tolerance, verbose=False)
     except GeometryDifference:
         print('These layouts are different.')
         ipc_load(ref_file, mode=1)
         ipc_load(test_file, mode=2)
 
 
-# git integration. This is not meant for users. It goes in the inner workings of git
+# git integration.
+# This is not meant to be called by command line users. It gets called by the inner workings of git
 git_parser = argparse.ArgumentParser(prog='lytest git-diff', description="file-based diff integrated with klayout")
 git_parser.add_argument('path')
 git_parser.add_argument('lyfile1', type=argparse.FileType('r'),

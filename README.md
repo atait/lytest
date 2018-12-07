@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/atait/lytest.svg?branch=master)](https://travis-ci.org/atait/lytest)
+[![DOI](https://zenodo.org/badge/144975054.svg)](https://zenodo.org/badge/latestdoi/144975054)
 
 # lytest
 

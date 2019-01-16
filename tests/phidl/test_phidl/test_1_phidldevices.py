@@ -20,3 +20,8 @@ def Boxy(TOP):
 def test_Boxy():
     lytest.utest_buds.test_root = os.path.join(os.path.dirname(phidlib.__file__), 'test_phidl')
     difftest_it(Boxy)()
+
+    # Now test that the fallback works
+    lytest.utest_buds.run_xor = lytest.kdb_xor.run_xor_phidl
+    difftest_it(Boxy, file_ext='.gds')()
+    lytest.utest_buds.run_xor = lytest.kdb_xor.run_xor

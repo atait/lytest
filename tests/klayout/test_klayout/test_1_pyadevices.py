@@ -18,20 +18,12 @@ def Boxypy(TOP):
     pyalib.put_box(TOP)
 
 
-# @working_pya
-# def test_BoxypyGDS():
-#     lytest.utest_buds.test_root = os.path.join(os.path.dirname(pyalib.__file__), 'test_klayout')
-#     difftest_it(Boxypy)()
-#     lytest.kdb_xor.run_xor = lytest.kdb_xor.run_xor_phidl
-#     difftest_it(Boxypy)()
-
-
 @working_pya
 def test_Boxypy():
     lytest.utest_buds.test_root = os.path.join(os.path.dirname(pyalib.__file__), 'test_klayout')
     difftest_it(Boxypy, file_ext='.oas')()
+
     # Now test that the fallback works
-    # import pdb; pdb.set_trace()
     lytest.utest_buds.run_xor = lytest.kdb_xor.run_xor_phidl
     difftest_it(Boxypy, file_ext='.oas')()
     lytest.utest_buds.run_xor = lytest.kdb_xor.run_xor

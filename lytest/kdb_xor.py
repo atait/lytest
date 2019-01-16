@@ -109,7 +109,6 @@ def run_xor_phidl(file1, file2, tolerance=1, verbose=False):
     TOPS = []
     for fn in [file1, file2]:
         if fn.endswith('.oas'):
-            # raise ImportError('phidl does not yet support OASIS import')
             TOPS.append(pg.import_oas(fn))
         else:
             TOPS.append(pg.import_gds(fn))

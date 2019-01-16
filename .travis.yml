@@ -7,10 +7,10 @@ os: linux
 cache: pip
 
 install:
-  - pip install -r requirements.txt
+  - pip install -r requirements-test.txt
   - pip install .
 script:
-  - DOCKER=1 pytest examples
+  - DOCKER=1 pytest tests
 
 deploy:
   provider: pypi

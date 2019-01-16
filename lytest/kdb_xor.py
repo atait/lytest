@@ -1,7 +1,4 @@
 import os
-import phidl
-import gdspy
-import phidl.geometry as pg
 
 from lygadgets import pya as pya, message
 
@@ -115,6 +112,9 @@ def run_xor_phidl(file1, file2, tolerance=1, verbose=False):
 if pya is None:
     message('Detected no klayout standalone. We will use phidl, which is slower')
     message('You should "pip install klayout"')
+    import phidl
+    import phidl.geometry as pg
+    import gdspy
     run_xor = run_xor_phidl
 
 

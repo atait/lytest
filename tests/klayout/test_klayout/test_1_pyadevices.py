@@ -20,7 +20,7 @@ def Boxypy(TOP):
 
 @working_pya
 def test_Boxypy():
-    lytest.utest_buds.test_root = os.path.join(os.path.dirname(pyalib.__file__), 'tests')
+    lytest.utest_buds.test_root = os.path.join(os.path.dirname(pyalib.__file__), 'test_klayout')
     difftest_it(Boxypy, file_ext='.oas')()
 
 
@@ -34,7 +34,7 @@ def Boxxx():
 
 @working_pya
 def test_Boxxx():
-    lytest.utest_buds.test_root = os.path.join(os.path.dirname(pyalib.__file__), 'tests')
+    lytest.utest_buds.test_root = os.path.join(os.path.dirname(pyalib.__file__), 'test_klayout')
     # First lets check whether klayout is installed and aliased to command line
     try:
         subprocess.check_call(['klayout', '-b'])

@@ -18,5 +18,5 @@ def Boxy(TOP):
 
 
 def test_Boxy():
-    lytest.utest_buds.test_root = os.path.join(os.path.dirname(phidlib.__file__), 'tests')
+    lytest.utest_buds.test_root = os.path.join(os.path.dirname(phidlib.__file__), 'test_phidl')
     difftest_it(Boxy)()

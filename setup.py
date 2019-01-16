@@ -15,7 +15,7 @@ setup(name='lytest',
       author_email='alexander.tait@nist.gov',
       license='MIT',
       packages=['lytest'],
-      install_requires=['klayout', 'pytest', 'lygadgets>=0.1.14', 'lyipc>0.2.0'],
+      install_requires=['pytest', 'lygadgets>=0.1.15', 'lyipc>0.2.0'],
       entry_points={'console_scripts': ['lytest=lytest.command_line:cm_main']},
       cmdclass={},
       )

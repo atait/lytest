@@ -79,6 +79,9 @@ def xor_polygons_phidl(A,B):
     """ Given two devices A and B, performs a layer-by-layer XOR diff between
     A and B, and returns polygons representing the differences between A and B.
     """
+    import phidl
+    import phidl.geometry as pg
+    import gdspy
     D = phidl.Device()
     A_polys = A.get_polygons(by_spec = True)
     B_polys = B.get_polygons(by_spec = True)
@@ -102,8 +105,15 @@ def xor_polygons_phidl(A,B):
 
 
 def run_xor_phidl(file1, file2, tolerance=1, verbose=False):
-    TOP1 = pg.import_gds(file1)
-    TOP2 = pg.import_gds(file2)
+    import phidl.geometry as pg
+    TOPS = []
+    for fn in [file1, file2]:
+        if fn.endswith('.oas'):
+            # raise ImportError('phidl does not yet support OASIS import')
+            TOPS.append(pg.import_oas(fn))
+        else:
+            TOPS.append(pg.import_gds(fn))
+    TOP1, TOP2 = TOPS
     XOR = xor_polygons_phidl(TOP1, TOP2)
     if len(XOR.elements) > 0:
         raise GeometryDifference("Differences found between layouts {} and {}".format(file1, file2))
@@ -112,9 +122,6 @@ def run_xor_phidl(file1, file2, tolerance=1, verbose=False):
 if pya is None:
     message('Detected no klayout standalone. We will use phidl, which is slower')
     message('You should "pip install klayout"')
-    import phidl
-    import phidl.geometry as pg
-    import gdspy
     run_xor = run_xor_phidl
 
 

@@ -9,5 +9,5 @@ lys.add_layer(gds_layer=2, gds_datatype=0,
               name='l2', description='Layer 2')
 
 
-def box():
-    return pg.rectangle(size=(10, 20), layer=lys['l1'])
+def box(width=10):
+    return pg.rectangle(size=(width, 20), layer=lys['l1'])

@@ -33,11 +33,11 @@ def test_phidlXOR():
     TOP1 = phidlib.box()
     TOP2 = pg.import_gds(ref_file)
     TOP_different = phidlib.box(width=100)
-    for geom_hash in [True, False]:
-        XOR = xor_polygons_phidl(TOP1, TOP2, geom_hash=geom_hash)
+    for hash_geom in [True, False]:
+        XOR = xor_polygons_phidl(TOP1, TOP2, hash_geom=hash_geom)
         if len(XOR.elements) > 0:
             raise GeometryDifference("Differences found between phidl Devices.")
-        XOR_different = xor_polygons_phidl(TOP_different, TOP2, geom_hash=geom_hash)
+        XOR_different = xor_polygons_phidl(TOP_different, TOP2, hash_geom=hash_geom)
         assert len(XOR_different.elements) > 0
 
 

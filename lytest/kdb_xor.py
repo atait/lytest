@@ -75,16 +75,17 @@ def run_xor(file1, file2, tolerance=1, verbose=False):
         raise GeometryDifference("Differences found between layouts {} and {}".format(*fn_abgd))
 
 
-def xor_polygons_phidl(A, B, geom_hash=True):
+def xor_polygons_phidl(A, B, hash_geom=True):
     """ Given two devices A and B, performs a layer-by-layer XOR diff between
     A and B, and returns polygons representing the differences between A and B.
     """
-    import phidl
-    import phidl.geometry as pg
+    from phidl import Device
     import gdspy
-    # first do
+    # first do a geometry hash to vastly speed up if they are equal
+    if hash_geom and (A.hash_geometry() == B.hash_geometry()):
+        return Device()
 
-    D = phidl.Device()
+    D = Device()
     A_polys = A.get_polygons(by_spec = True)
     B_polys = B.get_polygons(by_spec = True)
     A_layers = A_polys.keys()
@@ -106,14 +107,14 @@ def xor_polygons_phidl(A, B, geom_hash=True):
     return D
 
 
-def run_xor_phidl(file1, file2, tolerance=1, verbose=False):
+def run_xor_phidl(file1, file2, tolerance=1, verbose=False, hash_geom=True):
     import phidl.geometry as pg
     from lytest.phidl_oas import import_oas
     TOPS = []
     for fn in [file1, file2]:
         TOPS.append(import_oas(fn))
     TOP1, TOP2 = TOPS
-    XOR = xor_polygons_phidl(TOP1, TOP2)
+    XOR = xor_polygons_phidl(TOP1, TOP2, hash_geom=True)
     if len(XOR.elements) > 0:
         raise GeometryDifference("Differences found between layouts {} and {}".format(file1, file2))
 

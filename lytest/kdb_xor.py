@@ -95,7 +95,7 @@ def xor_polygons_phidl(A, B, hash_geom=True):
     all_layers.update(B_layers)
     for layer in all_layers:
         if (layer in A_layers) and (layer in B_layers):
-            p = gdspy.fast_boolean(operandA = A_polys[layer], operandB = B_polys[layer],
+            p = gdspy.fast_boolean(A_polys[layer], B_polys[layer],
                                    operation = 'xor', precision=0.001,
                                    max_points=4000, layer=layer[0], datatype=layer[1])
         elif (layer in A_layers):
@@ -115,7 +115,7 @@ def run_xor_phidl(file1, file2, tolerance=1, verbose=False, hash_geom=True):
         TOPS.append(import_oas(fn))
     TOP1, TOP2 = TOPS
     XOR = xor_polygons_phidl(TOP1, TOP2, hash_geom=True)
-    if len(XOR.elements) > 0:
+    if len(XOR.flatten().get_polygons()) > 0:
         raise GeometryDifference("Differences found between layouts {} and {}".format(file1, file2))
 
 # if you have failed to import klayout.db or pya, it's going to go slower but it can be done with phidl

@@ -35,10 +35,10 @@ def test_phidlXOR():
     TOP_different = phidlib.box(width=100)
     for hash_geom in [True, False]:
         XOR = xor_polygons_phidl(TOP1, TOP2, hash_geom=hash_geom)
-        if len(XOR.elements) > 0:
+        if len(XOR.flatten().get_polygons()) > 0:
             raise GeometryDifference("Differences found between phidl Devices.")
         XOR_different = xor_polygons_phidl(TOP_different, TOP2, hash_geom=hash_geom)
-        assert len(XOR_different.elements) > 0
+        assert len(XOR_different.flatten().get_polygons()) > 0
 
 
 def test_OAS():
@@ -47,7 +47,7 @@ def test_OAS():
     write_oas(TOP1, tempfilename)
     TOP2 = import_oas(tempfilename)
     XOR = xor_polygons_phidl(TOP1, TOP2)
-    if len(XOR.elements) > 0:
+    if len(XOR.flatten().get_polygons()) > 0:
         raise GeometryDifference("Differences found between phidl Devices.")
     os.remove(tempfilename)
 

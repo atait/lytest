@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.org/atait/lytest.svg?branch=master)](https://travis-ci.org/atait/lytest)
-[![DOI](https://zenodo.org/badge/144975054.svg)](https://zenodo.org/badge/latestdoi/144975054)
-
 # lytest
+[![Build Status](https://travis-ci.org/atait/lytest.svg?branch=master)](https://travis-ci.org/atait/lytest)
+[![Downloads](https://static.pepy.tech/personalized-badge/lytest?period=total&units=international_system&left_color=grey&right_color=brightgreen&left_text=Downloads)](https://pepy.tech/project/lytest)
+[![DOI](https://zenodo.org/badge/144975054.svg)](https://zenodo.org/badge/latestdoi/144975054)
 
 Test automation tools for integrated circuit layout using klayout and pytest.
 

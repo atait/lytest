@@ -34,8 +34,7 @@ import subprocess
 def Boxxx():
     script_file = os.path.join(os.path.dirname(__file__), 'make_somepya.py')
     subprocess.check_call(['klayout', '-b', '-r', script_file])
-    produced_file = 'sample_layout.gds'
-    return produced_file
+    return 'sample_layout.gds'
 
 @working_pya
 def test_Boxxx():

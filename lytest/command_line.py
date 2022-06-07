@@ -1,5 +1,6 @@
 ''' Store new references from command line
 '''
+
 import os
 import argparse
 from lytest import __version__, store_reference, ipc_load
@@ -8,7 +9,7 @@ import importlib.util
 import subprocess
 import textwrap
 
-_loaded_modules = dict()
+_loaded_modules = {}
 def load_attribute_fromfile(filename, attr):
     # Import the module from the source of that file, then get an attribute
     modulename = os.path.splitext(os.path.basename(filename))[0]
@@ -19,7 +20,7 @@ def load_attribute_fromfile(filename, attr):
         try:
             spec.loader.exec_module(the_module)
         except Exception as err:
-            raise ImportError('Error loading ' + str(testfile.name))
+            raise ImportError(f'Error loading {str(testfile.name)}')
         _loaded_modules[modulename] = the_module
     the_module = _loaded_modules[modulename]
     return getattr(the_module, attr)
@@ -39,7 +40,7 @@ top_parser = argparse.ArgumentParser(
 top_parser.add_argument('command', type=str, choices=['store', 'diff', 'run', 'git-config', 'git-diff'],
                     metavar='<command>')
 top_parser.add_argument('args', nargs=argparse.REMAINDER)
-top_parser.add_argument('-v', '--version', action='version', version='%(prog)s v{}'.format(__version__))
+top_parser.add_argument('-v', '--version', action='version', version=f'%(prog)s v{__version__}')
 
 def cm_main():
     args = top_parser.parse_args()
@@ -80,10 +81,8 @@ def cm_xor_test(args):
     run_args = run_parser.parse_args(args)
     # make sure we get the difftest_it kind
     func_name = run_args.testname
-    if func_name.startswith('test_') or func_name.endswith('_test'):
-        pass  # good to go
-    else:
-        for func_name_try in ['test_' + func_name, func_name + '_test']:
+    if not func_name.startswith('test_') and not func_name.endswith('_test'):
+        for func_name_try in [f'test_{func_name}', f'{func_name}_test']:
             try:
                 load_attribute_fromfile(run_args.testfile.name, func_name_try)
                 break
@@ -113,7 +112,7 @@ def cm_diff(args):
     for file in [diff_args.lyfile1, diff_args.lyfile2]:
         file_ext = os.path.splitext(file.name)[1]
         if file_ext.lower() not in ['.gds', '.oas']:
-            raise ValueError('Unrecognized layout format: {}'.format(file.name))
+            raise ValueError(f'Unrecognized layout format: {file.name}')
     ref_file = diff_args.lyfile1.name
     test_file = diff_args.lyfile2.name
     try:
@@ -147,11 +146,12 @@ def cm_gitdiff(args):
         return
     for file in [git_args.lyfile1, git_args.lyfile2]:
         if git_args.mode2 is None or file.name == '/dev/null':  # what is this on windows?
-            print('File {} does not exist on both commits'.format([git_args.lyfile1.name, git_args.lyfile2.name]))
+            print(f'File {[git_args.lyfile1.name, git_args.lyfile2.name]} does not exist on both commits')
+
             return
         file_ext = os.path.splitext(file.name)[1]
         if file_ext.lower() not in ['.gds', '.oas']:
-            raise ValueError('Unrecognized layout format: {}'.format(file.name))
+            raise ValueError(f'Unrecognized layout format: {file.name}')
     ref_file = git_args.lyfile1.name
     test_file = git_args.lyfile2.name
     try:
@@ -179,10 +179,8 @@ def cm_gitconfig(args):
     binary_config_call = config_call + ['diff.lytest.binary', 'true']
     subprocess.check_call(binary_config_call)
 
-    if not gitconfig_args.local:
-        attr_file = os.path.expanduser('~/.gitattributes')
-    else:
-        attr_file = os.path.join('.git', 'info', 'attributes')
+    attr_file = os.path.join('.git', 'info', 'attributes') if gitconfig_args.local else os.path.expanduser('~/.gitattributes')
+
     with open(attr_file, 'a+') as fx:
         for filetype in ('gds', 'GDS', 'oas', 'OAS'):
             fx.write('*.{}  diff=lytest\n'.format(filetype))

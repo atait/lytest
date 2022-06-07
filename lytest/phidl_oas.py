@@ -17,7 +17,7 @@ def import_oas(filename, cellname = None, flatten = False):
         raise
     if not filename.lower().endswith('.oas'): filename += '.oas'
     fileroot = os.path.splitext(filename)[0]
-    tempfilename = fileroot + '-tmp.gds'
+    tempfilename = f'{fileroot}-tmp.gds'
 
     layout = pya.Layout()
     layout.read(filename)
@@ -51,7 +51,7 @@ def write_oas(device, filename, **write_kwargs):
         raise
     if not filename.lower().endswith('.oas'): filename += '.oas'
     fileroot = os.path.splitext(filename)[0]
-    tempfilename = fileroot + '-tmp.gds'
+    tempfilename = f'{fileroot}-tmp.gds'
 
     device.write_gds(tempfilename, **write_kwargs)
     layout = pya.Layout()

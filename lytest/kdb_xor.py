@@ -22,29 +22,29 @@ def run_xor(file1, file2, tolerance=1, verbose=False):
         li1 = l1.get_info(ll1)
         ll2 = l2.find_layer(l1.get_info(ll1))
         if ll2 is None:
-            raise GeometryDifference("Layer {} of layout {} not present in layout {}.".format(li1, file1, file2))
+            raise GeometryDifference(f"Layer {li1} of layout {file1} not present in layout {file2}.")
+
         layer_pairs.append((ll1, ll2))
 
     for ll2 in l2.layer_indices():
         li2 = l2.get_info(ll2)
         ll1 = l1.find_layer(l2.get_info(ll2))
         if ll1 is None:
-            raise GeometryDifference("Layer {} of layout {} not present in layout {}.".format(li2, file2, file1))
+            raise GeometryDifference(f"Layer {li2} of layout {file2} not present in layout {file1}.")
+
 
     # Check that topcells are the same
     tc1_names = [tc.name for tc in l1.top_cells()]
     tc2_names = [tc.name for tc in l2.top_cells()]
     tc1_names.sort()
     tc2_names.sort()
-    if not tc1_names == tc2_names:
+    if tc1_names != tc2_names:
         raise GeometryDifference("Missing topcell on one of the layouts, or name differs:\n{}\n{}".format(tc1_names, tc2_names))
-    topcell_pairs = []
-    for tc1_n in tc1_names:
-        topcell_pairs.append((l1.cell(tc1_n), l2.cell(tc1_n)))
-
+    topcell_pairs = [(l1.cell(tc1_n), l2.cell(tc1_n)) for tc1_n in tc1_names]
     # Check that dbu are the same
     if (l1.dbu - l2.dbu) > 1e-6:
-        raise GeometryDifference("Database unit of layout {} ({}) differs from that of layout {} ({}).".format(file1, l1.dbu, file2, l2.dbu))
+        raise GeometryDifference(f"Database unit of layout {file1} ({l1.dbu}) differs from that of layout {file2} ({l2.dbu}).")
+
 
     # Run the difftool
     diff = False
@@ -61,10 +61,10 @@ def run_xor(file1, file2, tolerance=1, verbose=False):
             if not rxor.is_empty():
                 diff = True
                 if verbose:
-                    print("{} differences found in {} on layer {}.".format(rxor.size(), tc1.name, l1.get_info(ll1)))
-            else:
-                if verbose:
-                    print("No differences found in {} on layer {}.".format(tc1.name, l1.get_info(ll1)))
+                    print(f"{rxor.size()} differences found in {tc1.name} on layer {l1.get_info(ll1)}.")
+
+            elif verbose:
+                print(f"No differences found in {tc1.name} on layer {l1.get_info(ll1)}.")
 
     if diff:
         fn_abgd = []
@@ -110,13 +110,11 @@ def xor_polygons_phidl(A, B, hash_geom=True):
 def run_xor_phidl(file1, file2, tolerance=1, verbose=False, hash_geom=True):
     import phidl.geometry as pg
     from lytest.phidl_oas import import_oas
-    TOPS = []
-    for fn in [file1, file2]:
-        TOPS.append(import_oas(fn))
+    TOPS = [import_oas(fn) for fn in [file1, file2]]
     TOP1, TOP2 = TOPS
     XOR = xor_polygons_phidl(TOP1, TOP2, hash_geom=True)
     if len(XOR.flatten().get_polygons()) > 0:
-        raise GeometryDifference("Differences found between layouts {} and {}".format(file1, file2))
+        raise GeometryDifference(f"Differences found between layouts {file1} and {file2}")
 
 # if you have failed to import klayout.db or pya, it's going to go slower but it can be done with phidl
 if pya is None:

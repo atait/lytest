@@ -85,6 +85,9 @@ contained_pyaCell = lambda func: contained_arbitrary(func, pya_context)
 
 
 def contained_script(func):
+    """For arbitrary python scripts that produce a file artifact.
+        The wrapped function must return the name of the file it produces.
+    """
     @wraps(func)
     def script_container(out_file=None):
         produced_file = func()

@@ -1,5 +1,6 @@
 from lytest.kdb_xor import GeometryDifference, run_xor
 from functools import wraps
+import shutil
 import os
 
 
@@ -51,10 +52,10 @@ def difftest_it(func, file_ext=".gds"):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
+        func(test_file, *args, **kwargs)
         if not os.path.exists(ref_file):
             print("Warning reference does not exist. Creating it and an initial test")
-            func(ref_file, *args, **kwargs)
-        func(test_file, *args, **kwargs)
+            shutil.copyfile(test_file, ref_file)
         try:
             run_xor(ref_file, test_file, tolerance=1, verbose=False)
         except GeometryDifference:

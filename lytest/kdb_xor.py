@@ -1,14 +1,22 @@
 import os
 
 from lygadgets import pya as pya, message
+from lytest.phidl_oas import import_oas
 
 
 class GeometryDifference(Exception):
     pass
 
 
-def run_xor(file1, file2, tolerance=1, verbose=False):
-    """Returns nothing. Raises a GeometryDifference if there are differences detected"""
+def run_xor(file1, file2, tolerance=1, hash_geom=False, verbose=False):
+    """Returns nothing. Raises a GeometryDifference if there are differences detected
+        hash_geom=True uses phidl's hash_geometry, avoiding a full XOR unless they are different
+    """
+
+    if hash_geom:
+        A, B = [import_oas(fn) for fn in [file1, file2]]
+        if (A.hash_geometry() == B.hash_geometry()):
+            return
 
     l1 = pya.Layout()
     l1.read(file1)
@@ -129,9 +137,6 @@ def xor_polygons_phidl(A, B, hash_geom=True):
 
 
 def run_xor_phidl(file1, file2, tolerance=1, verbose=False, hash_geom=True):
-    import phidl.geometry as pg
-    from lytest.phidl_oas import import_oas
-
     TOPS = [import_oas(fn) for fn in [file1, file2]]
     TOP1, TOP2 = TOPS
     XOR = xor_polygons_phidl(TOP1, TOP2, hash_geom=True)

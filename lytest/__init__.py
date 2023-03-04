@@ -1,4 +1,4 @@
-__version__ = "0.0.20"
+__version__ = "0.0.21"
 
 # quickplotters so you can debug more easily
 try:

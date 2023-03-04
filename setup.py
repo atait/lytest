@@ -8,9 +8,10 @@ def readme():
 
 
 setup(name='lytest',
-      version='0.0.20',
+      version='0.0.21',
       description='Regression testing for klayout and phidl',
       long_description=readme(),
+      long_description_content_type='text/markdown',
       author='Alex Tait, Adam McCaughan, Sonia Buckley, Jeff Chiles, Jeff Shainline, Rich Mirin, Sae Woo Nam',
       author_email='alexander.tait@nist.gov',
       license='MIT',

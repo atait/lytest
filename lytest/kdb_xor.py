@@ -14,7 +14,7 @@ def run_xor(file1, file2, tolerance=1, hash_geom=False, verbose=False):
     """
 
     if hash_geom:
-        A, B = [import_oas(fn) for fn in [file1, file2]]
+        A, B = [import_oas(fn, cellname='TOP') for fn in [file1, file2]]  # We know it is TOP because lytest made it
         if (A.hash_geometry() == B.hash_geometry()):
             return
 

@@ -142,6 +142,16 @@ def run_xor_phidl(file1, file2, tolerance=1, verbose=False, hash_geom=True):
         )
 
 
+def run_xor_pcbnew(file1, file2, tolerance=.001, verbose=False, hash_geom=True):
+    from kigadgets.board import Board
+    pcb1 = Board.load(file1)
+    pcb2 = Board.load(file2)
+    if pcb1.geohash() != pcb2.geohash():
+        raise GeometryDifference(
+            f"Differences found between boards {file1} and {file2}"
+        )
+
+
 run_xor = run_xor_pya
 
 

@@ -48,6 +48,19 @@ def pya_context(cell_name=None, out_file=None):
         layout.write(out_file)
 
 
+@contextmanager
+def pcbnew_context(board_name=None, out_file=None):
+    """Handles a conditional write to file or send over lyipc connection.
+    See phidl_context above.
+    """
+    from kigadgets.board import Board
+
+    pcb = Board()
+    yield pcb
+    # pcbnew.Refresh()
+    pcb.save(out_file)
+
+
 def contained_arbitrary(func, layout_context):
     """
     Converts a function that takes a Device argument to one that takes a filename argument.
@@ -82,6 +95,7 @@ def contained_arbitrary(func, layout_context):
 
 contained_phidlDevice = lambda func: contained_arbitrary(func, phidl_context)
 contained_pyaCell = lambda func: contained_arbitrary(func, pya_context)
+contained_pcbnewBoard = lambda func: contained_arbitrary(func, pcbnew_context)
 
 
 def contained_script(func):

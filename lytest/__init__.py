@@ -30,4 +30,5 @@ except ImportError:
 from lytest.kdb_xor import GeometryDifference, run_xor, xor_polygons_phidl
 from lytest.utest_buds import store_reference, difftest_it
 from lytest.containers import contained_phidlDevice, contained_pyaCell, contained_script
+from lytest.containers import contained_pcbnewBoard
 import lytest.command_line

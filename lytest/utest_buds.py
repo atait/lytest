@@ -19,7 +19,7 @@ def get_ref_dir():
         os.mkdir(ref_layouts_dir)
         gitignore_file = os.path.join(ref_layouts_dir, ".gitignore")
         with open(gitignore_file, "w") as fx:
-            fx.write("!*.gds\n!*.oas\n")
+            fx.write("!*.gds\n!*.oas\n*.kicad_*\n!*.kicad_pcb\n")
     return ref_layouts_dir
 
 
@@ -30,7 +30,7 @@ def get_test_dir():
         os.mkdir(test_layouts_dir)
         gitignore_file = os.path.join(test_layouts_dir, ".gitignore")
         with open(gitignore_file, "w") as fx:
-            fx.write("*.gds\n*.oas\n")
+            fx.write("*.gds\n*.oas\n*.kicad_*\n")
     return test_layouts_dir
 
 
@@ -39,14 +39,19 @@ def store_reference(generator_func, extension=".gds"):
     generator_func(out_file=os.path.join(get_ref_dir(), basename))
 
 
-def difftest_it(func, file_ext=".gds"):
+def difftest_it(func, file_ext=None):
     """Decorator. Runs an XOR after the function runs.
     The decorated/wrapped function must take at least one argument that is a filename. It must save to it.
     Other arguments can be passed through the wrapper function.
     This wrapper does not return. Instead it raises GeometryDifference if there are differences
     """
     testname = func.__name__
-    if file_ext.lower() not in [".gds", ".oas"]:
+    if file_ext is None:
+        if lytest.kdb_xor.run_xor is lytest.kdb_xor.run_xor_pcbnew:
+            file_ext = ".kicad_pcb"
+        else:
+            file_ext = ".gds"
+    if file_ext.lower() not in [".gds", ".oas", ".kicad_pcb"]:
         raise ValueError("Unrecognized layout format: {}".format(file_ext))
     ref_file = os.path.join(get_ref_dir(), testname) + file_ext
     test_file = os.path.join(get_test_dir(), testname) + file_ext

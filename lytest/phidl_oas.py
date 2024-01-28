@@ -2,7 +2,15 @@
 """
 
 import os
-from phidl import geometry as pg
+
+try:
+    from phidl import geometry as pg
+except ImportError:
+    # This will error if you call the functions, not when you import the module
+    class Warner:
+        def __getattr__(self, att):
+            raise ImportError('phidl was not found, so import/write OAS will not work')
+    pg = Warner()
 
 
 def import_oas(filename, cellname=None, flatten=False):

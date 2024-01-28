@@ -8,7 +8,7 @@ try:
 except ImportError:
 
     def kqp(*args, **kwargs):
-        print("klayout quickplot is not available.\nPlease install lyipc.")
+        print("klayout quickplot is not available.\nPlease install lyipc for extra functionality.")
 
 
 try:

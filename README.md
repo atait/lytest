@@ -30,8 +30,9 @@ A test consists of a fixed block of code that produces a GDSII (or OASIS) file. 
 ```
 pip install lytest
 ```
-The first time you do this, it will take about 10 minutes to build klayout. Installation depends on pytest, klayout, and lygadgets -- these are automatically installed as dependencies via pip.
+`lytest` has several optional dependencies. It does not install layout packages (`phidl`, `klayout`, etc.). At least one of them must be installed somehow: you pick how. If using `klayout`, a.k.a. `pya`, also `pip install lygadgets`. [lygadgets](https://github.com/atait/klayout-gadgets) manages klayout's environment.
 
+`lytest` has the ability to send layout diffs from the testing scripts to the KLayout GUI. To enable this functionality, `pip install lyipc && lygadgets_link lyipc`
 
 ## Usage
 There are three main parts: write the test, save the answer, run the test repeatedly.

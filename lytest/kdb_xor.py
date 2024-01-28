@@ -1,6 +1,5 @@
 import os
 
-from lygadgets import pya as pya, message
 from lytest.phidl_oas import import_oas
 
 
@@ -8,16 +7,15 @@ class GeometryDifference(Exception):
     pass
 
 
-def run_xor(file1, file2, tolerance=1, hash_geom=False, verbose=False):
+def run_xor_pya(file1, file2, tolerance=1, hash_geom=False, verbose=False):
     """Returns nothing. Raises a GeometryDifference if there are differences detected
         hash_geom=True uses phidl's hash_geometry, avoiding a full XOR unless they are different
     """
 
     if hash_geom:
-        A, B = [import_oas(fn, cellname='TOP') for fn in [file1, file2]]  # We know it is TOP because lytest made it
-        if (A.hash_geometry() == B.hash_geometry()):
-            return
+        run_xor_phidl(file1, file2, tolerance, hash_geom=True, verbose=verbose)
 
+    from lygadgets import pya
     l1 = pya.Layout()
     l1.read(file1)
 
@@ -137,8 +135,7 @@ def xor_polygons_phidl(A, B, hash_geom=True):
 
 
 def run_xor_phidl(file1, file2, tolerance=1, verbose=False, hash_geom=True):
-    TOPS = [import_oas(fn) for fn in [file1, file2]]
-    TOP1, TOP2 = TOPS
+    TOP1, TOP2 = [import_oas(fn) for fn in [file1, file2]]
     XOR = xor_polygons_phidl(TOP1, TOP2, hash_geom=True)
     if len(XOR.flatten().get_polygons()) > 0:
         raise GeometryDifference(
@@ -146,10 +143,7 @@ def run_xor_phidl(file1, file2, tolerance=1, verbose=False, hash_geom=True):
         )
 
 
-# if you have failed to import klayout.db or pya, it's going to go slower but it can be done with phidl
 if pya is None:
-    message("Detected no klayout standalone. We will use phidl.")
-    message('You should "pip install klayout"')
     run_xor = run_xor_phidl
 
 

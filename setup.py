@@ -8,7 +8,7 @@ def readme():
 
 
 setup(name='lytest',
-      version='0.0.21',
+      version='0.0.22',
       description='Regression testing for klayout and phidl',
       long_description=readme(),
       long_description_content_type='text/markdown',

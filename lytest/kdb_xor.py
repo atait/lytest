@@ -142,7 +142,7 @@ def run_xor_phidl(file1, file2, tolerance=1, verbose=False, hash_geom=True):
         )
 
 
-run_xor = run_xor_phidl
+run_xor = run_xor_pya
 
 
 if __name__ == "__main__":

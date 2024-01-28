@@ -11,11 +11,10 @@ def run_xor_pya(file1, file2, tolerance=1, hash_geom=False, verbose=False):
     """Returns nothing. Raises a GeometryDifference if there are differences detected
         hash_geom=True uses phidl's hash_geometry, avoiding a full XOR unless they are different
     """
-
-    if hash_geom:
+    from lygadgets import pya
+    if hash_geom or pya is None:
         run_xor_phidl(file1, file2, tolerance, hash_geom=True, verbose=verbose)
 
-    from lygadgets import pya
     l1 = pya.Layout()
     l1.read(file1)
 
@@ -143,8 +142,7 @@ def run_xor_phidl(file1, file2, tolerance=1, verbose=False, hash_geom=True):
         )
 
 
-if pya is None:
-    run_xor = run_xor_phidl
+run_xor = run_xor_phidl
 
 
 if __name__ == "__main__":

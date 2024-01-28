@@ -23,6 +23,17 @@ def get_ref_dir():
     return ref_layouts_dir
 
 
+def get_src_dir():
+    """ src_dir must be created manually """
+    src_layouts_dir = os.path.realpath(os.path.join(test_root, "src_layouts"))
+    if os.path.exists(src_layouts_dir):
+        gitignore_file = os.path.join(src_layouts_dir, ".gitignore")
+        if not os.path.exists(gitignore_file):
+            with open(gitignore_file, "w") as fx:
+                fx.write("!*.gds\n!*.oas\n*.kicad_*\n!*.kicad_pcb\n")
+    return src_layouts_dir
+
+
 def get_test_dir():
     """This does the path joining of course, and also creates the right setup if not present"""
     test_layouts_dir = os.path.realpath(os.path.join(test_root, "run_layouts"))
@@ -52,10 +63,13 @@ def difftest_it(func, file_ext=None):
         raise ValueError("Unrecognized layout format: {}".format(file_ext))
     ref_file = os.path.join(get_ref_dir(), testname) + file_ext
     test_file = os.path.join(get_test_dir(), testname) + file_ext
+    src_file = os.path.join(get_src_dir(), testname) + file_ext
+    if not os.path.isfile(src_file):
+        src_file = None
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        func(test_file, *args, **kwargs)
+        func(test_file, *args, in_file=src_file, **kwargs)
         if not os.path.exists(ref_file):
             print("Warning reference does not exist. Creating it and an initial test")
             shutil.copyfile(test_file, ref_file)

@@ -6,7 +6,7 @@ from lytest import kqp, ipc_load
 
 
 @contextmanager
-def phidl_context(device_name=None, out_file=None):
+def phidl_context(device_name=None, out_file=None, in_file=None):
     """Handles a conditional write to file or send over lyipc connection.
     The context manager yields a new empty Device.
     The context block then modifies that device by adding references to it. It does not need to return anything.
@@ -33,7 +33,7 @@ def phidl_context(device_name=None, out_file=None):
 
 
 @contextmanager
-def pya_context(cell_name=None, out_file=None):
+def pya_context(cell_name=None, out_file=None, in_file=None):
     """Handles a conditional write to file or send over lyipc connection.
     See phidl_context above.
     """
@@ -49,13 +49,13 @@ def pya_context(cell_name=None, out_file=None):
 
 
 @contextmanager
-def pcbnew_context(board_name=None, out_file=None):
+def pcbnew_context(board_name=None, out_file=None, in_file=None):
     """Handles a conditional write to file or send over lyipc connection.
     See phidl_context above.
     """
     from kigadgets.board import Board
 
-    pcb = Board()
+    pcb = Board.load(in_file) if in_file else Board()
     yield pcb
     # pcbnew.Refresh()
     pcb.save(out_file)
@@ -86,8 +86,8 @@ def contained_arbitrary(func, layout_context):
     """
 
     @wraps(func)
-    def geometry_container(out_file=None):
-        with layout_context(out_file=out_file) as TOP:
+    def geometry_container(out_file=None, in_file=None):
+        with layout_context(out_file=out_file, in_file=in_file) as TOP:
             func(TOP)
 
     return geometry_container
@@ -103,7 +103,7 @@ def contained_script(func):
         The wrapped function must return the name of the file it produces.
     """
     @wraps(func)
-    def script_container(out_file=None):
+    def script_container(out_file=None, in_file=None):
         produced_file = func()
         if out_file is None:
             ipc_load(produced_file)

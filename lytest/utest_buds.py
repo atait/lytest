@@ -1,5 +1,4 @@
-from lytest.kdb_xor import GeometryDifference
-import lytest.kdb_xor
+from lytest.kdb_xor import GeometryDifference, run_xor
 from functools import wraps
 import shutil
 import os
@@ -10,6 +9,7 @@ from lytest import ipc_load
 
 #: Set this attribute depending on where you want to do the testing
 test_root = "."
+default_file_ext = ".gds"
 
 
 def get_ref_dir():
@@ -47,10 +47,7 @@ def difftest_it(func, file_ext=None):
     """
     testname = func.__name__
     if file_ext is None:
-        if lytest.kdb_xor.run_xor is lytest.kdb_xor.run_xor_pcbnew:
-            file_ext = ".kicad_pcb"
-        else:
-            file_ext = ".gds"
+        file_ext = default_file_ext
     if file_ext.lower() not in [".gds", ".oas", ".kicad_pcb"]:
         raise ValueError("Unrecognized layout format: {}".format(file_ext))
     ref_file = os.path.join(get_ref_dir(), testname) + file_ext
@@ -63,7 +60,7 @@ def difftest_it(func, file_ext=None):
             print("Warning reference does not exist. Creating it and an initial test")
             shutil.copyfile(test_file, ref_file)
         try:
-            lytest.kdb_xor.run_xor(ref_file, test_file, tolerance=1, hash_geom=True, verbose=False)
+            run_xor(ref_file, test_file, tolerance=1, hash_geom=True, verbose=False)
         except GeometryDifference:
             ipc_load(ref_file, mode=1)
             ipc_load(test_file, mode=2)

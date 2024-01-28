@@ -152,7 +152,12 @@ def run_xor_pcbnew(file1, file2, tolerance=.001, verbose=False, hash_geom=True):
         )
 
 
-run_xor = run_xor_pya
+def run_xor(*args, **kwargs):
+    file1 = args[0]
+    if file1.endswith('.kicad_pcb'):
+        run_xor_pcbnew(*args, **kwargs)
+    else:
+        run_xor_pya(*args, **kwargs)
 
 
 if __name__ == "__main__":

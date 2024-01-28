@@ -19,7 +19,7 @@ def get_ref_dir():
         os.mkdir(ref_layouts_dir)
         gitignore_file = os.path.join(ref_layouts_dir, ".gitignore")
         with open(gitignore_file, "w") as fx:
-            fx.write("!*.gds\n!*.oas\n*.kicad_*\n!*.kicad_pcb\n")
+            fx.write("!*.gds\n!*.oas\n*.kicad_*\nfp-info-cache\n!*.kicad_pcb\n")
     return ref_layouts_dir
 
 
@@ -30,7 +30,7 @@ def get_src_dir():
         gitignore_file = os.path.join(src_layouts_dir, ".gitignore")
         if not os.path.exists(gitignore_file):
             with open(gitignore_file, "w") as fx:
-                fx.write("!*.gds\n!*.oas\n*.kicad_*\n!*.kicad_pcb\n")
+                fx.write("!*.gds\n!*.oas\n*.kicad_*\nfp-info-cache\n!*.kicad_pcb\n")
     return src_layouts_dir
 
 
@@ -41,7 +41,7 @@ def get_test_dir():
         os.mkdir(test_layouts_dir)
         gitignore_file = os.path.join(test_layouts_dir, ".gitignore")
         with open(gitignore_file, "w") as fx:
-            fx.write("*.gds\n*.oas\n*.kicad_*\n")
+            fx.write("*.gds\n*.oas\nfp-info-cache\n*.kicad_*\n")
     return test_layouts_dir
 
 

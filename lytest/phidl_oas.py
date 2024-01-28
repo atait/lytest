@@ -19,7 +19,7 @@ def import_oas(filename, cellname=None, flatten=False):
         retval = pg.import_gds(filename, cellname=cellname, flatten=flatten)
         return retval
     try:
-        import klayout.db as pya
+        import pya
     except ImportError as err:
         err.args = (
             "[PHIDL] klayout package needed to import OASIS. pip install klayout\n"
@@ -62,7 +62,7 @@ def write_oas(device, filename, **write_kwargs):
         device.write_gds(filename, **write_kwargs)
         return
     try:
-        import klayout.db as pya
+        import pya
     except ImportError as err:
         err.args = (
             "[PHIDL] klayout package needed to write OASIS. pip install klayout\n"

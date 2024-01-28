@@ -1,16 +1,18 @@
 import os
-import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from conftest import pya
+import pytest
+
+if pya is None:
+    pytest.skip('Module import requires pya', allow_module_level=True)
+
 import pyalib
 
-import lytest
-from lytest import qp, kqp  # not used for testing. Used if you want to debug this file
-
 # Differencing
+import lytest
 from lytest import difftest_it, store_reference
 from lytest.containers import contained_pyaCell, contained_script
+from lytest import qp, kqp  # not used for testing. Used if you want to debug this file
 
-from test_0_pyacode import working_pya
 
 # Begin actual device testing
 @contained_pyaCell
@@ -18,9 +20,8 @@ def Boxypy(TOP):
     pyalib.put_box(TOP)
 
 
-@working_pya
 def test_Boxypy():
-    lytest.utest_buds.test_root = os.path.join(os.path.dirname(pyalib.__file__), 'test_klayout')
+    lytest.utest_buds.test_root = os.path.dirname(__file__)
     difftest_it(Boxypy, file_ext='.oas')()
 
     # Now test that the fallback works
@@ -36,9 +37,9 @@ def Boxxx():
     subprocess.check_call(['klayout', '-b', '-r', script_file])
     return 'sample_layout.gds'
 
-@working_pya
+
 def test_Boxxx():
-    lytest.utest_buds.test_root = os.path.join(os.path.dirname(pyalib.__file__), 'test_klayout')
+    lytest.utest_buds.test_root = os.path.dirname(__file__)
     # First lets check whether klayout is installed and aliased to command line
     try:
         subprocess.check_call(['klayout', '-b'])

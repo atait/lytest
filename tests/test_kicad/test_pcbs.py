@@ -1,4 +1,7 @@
 import os
+from conftest import requires_pcbnew
+import pytest
+
 import lytest
 from lytest import contained_pcbnewBoard, difftest_it
 lytest.utest_buds.test_root = os.path.dirname(__file__)
@@ -7,4 +10,5 @@ lytest.utest_buds.test_root = os.path.dirname(__file__)
 def simple_track(pcb):
     pcb.add_track([(1, 1), (2, 2)], layer='B.Cu')
 
+@requires_pcbnew
 def test_simple_track(): difftest_it(simple_track, file_ext='.kicad_pcb')()

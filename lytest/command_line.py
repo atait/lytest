@@ -140,7 +140,7 @@ def cm_diff(args):
     diff_args = filebased_parser.parse_args(args)
     for file in [diff_args.lyfile1, diff_args.lyfile2]:
         file_ext = os.path.splitext(file.name)[1]
-        if file_ext.lower() not in [".gds", ".oas"]:
+        if file_ext.lower() not in [".gds", ".oas", ".kicad_pcb"]:
             raise ValueError(f"Unrecognized layout format: {file.name}")
     ref_file = diff_args.lyfile1.name
     test_file = diff_args.lyfile2.name
@@ -229,5 +229,5 @@ def cm_gitconfig(args):
     )
 
     with open(attr_file, "a+") as fx:
-        for filetype in ("gds", "GDS", "oas", "OAS"):
+        for filetype in ("gds", "GDS", "oas", "OAS", "kicad_pcb"):
             fx.write("*.{}  diff=lytest\n".format(filetype))
